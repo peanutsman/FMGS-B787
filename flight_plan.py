@@ -27,6 +27,7 @@ def cost_index_speed():
 ## Sinon on oublie la DB et on met diretement les coordonnées ici, dans tous les cas on peut garder les deux, la DB pour des points permanenents
 #et la création d'autres waypoints ici pour des points temporaires/pour les tests
 
+####Class waypoint : waypoint_identifier, x, y, z
 Seuil1 = Waypoint(find_waypoint("01L")[1],find_waypoint("01L")[2],find_waypoint("01L")[3])
 Seuil2 = Waypoint(find_waypoint("19R")[1],find_waypoint("19R")[2],find_waypoint("19R")[3])
 ESUME = Waypoint(find_waypoint("ESUME")[1],find_waypoint("ESUME")[2],find_waypoint("ESUME")[3])
