@@ -66,7 +66,7 @@ def on_msg_time(agent, *data):
     if data[0] == "1.00":
         xy_premier_wpt = [float(flight_plan_used[0][1]), float(flight_plan_used[0][2])]
         xy_deuxieme_wpt = [float(flight_plan_used[1][1]), float(flight_plan_used[1][2])]
-        IvySendMsg("StateVector x=%s y=%s z=0.0000 Vp=100.0000 fpa=0.0000 psi=%s phi=0.0000" %(str(flight_plan_used[0][1]), str(flight_plan_used[0][2]),str(leg_cap(xy_premier_wpt, xy_deuxieme_wpt))))
+        IvySendMsg("InitStateVector x=%s y=%s z=0.0000 Vp=100.0000 fpa=0.0000 psi=%s phi=0.0000" %(str(flight_plan_used[0][1]), str(flight_plan_used[0][2]),str(leg_cap(xy_premier_wpt, xy_deuxieme_wpt))))
     
     ###ENVOI DES PERFOS
     envoi_perfo()
@@ -189,9 +189,10 @@ def sequencement_leg(flight_plan :list):
     ### la méthode doit aussi prendre en compte qu'après le dernier waypoint : arrêt de l'avion
 
 def envoi_altitude(flight_plan :list):
-    global wpt_courant
-    alt = float(StateVector[3])
-    pass
+    altitude = flight_plan[wpt_courant ][4]
+    if altitude == -1:
+        altitude = StateVector[2]
+    IvySendMsg("AltManaged=%s" %altitude)
     
 IvyInit (app_name, "Ready to receive", 0, initialisation_FMS)
 IvyStart (bus_Ivy)
