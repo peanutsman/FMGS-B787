@@ -1,8 +1,25 @@
 import sqlite3
+import performances as perf
 
 # Création de la base de données et connexion
 con = sqlite3.connect('nav_db.db')
 cur = con.cursor()
+
+###CONSTANTS
+overfly = 0
+flyby = 1
+undefined_z = -1
+
+###DIFFERENTS FLIGHT PLANS
+flight_plan_tour_de_piste_GAUCHE = []
+fptdpG =[] ##Flight Plan Tour De Piste Gauche
+
+###COST INDEX
+CI = 0
+VMO = perf.perfos_avion([0,0,0,0],0,0)["VMO"]
+MMO = perf.perfos_avion([0,0,0,0],0,0)["MMO"]
+V2 = perf.perfos_avion([0,0,0,0],0,0)["V2"]
+MinMach = perf.perfos_avion([0,0,0,0],0,0)["MinMach"]
 
 class Waypoint:
     def __init__(self, waypoint_identifier, x, y):
@@ -11,19 +28,32 @@ class Waypoint:
         self.y = y
 
 #nav_db.db : Waypoints (IdWaypoint, waypoint_identifier, x, y)
-def find_waypoint(waypoint_identifier):
+def find_waypoint(waypoint_identifier: str):
     waypoint = cur.execute("SELECT * FROM Waypoints WHERE waypoint_identifier = ?",([waypoint_identifier])).fetchone()
     return waypoint
 
-def cost_index_speed():
-    global CI
-    if CI == 0:
-        return 200
-    if CI > 100:
-        return 300
-    else :
-        return 275
+def find_waypoint_index_in_fp(waypoint_identifier: str, flight_plan: list):
+    for i in range(len(flight_plan)):
+        if flight_plan[i][0] == waypoint_identifier:
+            return i
+    return -1
 
+def cost_index_ias():
+    if CI in range(0, 100):
+        return ((VMO-V2)/100)*CI + V2
+    if CI > 100:
+        return VMO
+def cost_index_mach():
+    if CI in range(0, 100):
+        return ((MMO-MinMach)/100)*CI + MinMach
+    if CI > 100:
+        return MMO
+
+def speed_to_mach(speed):
+    return speed/600
+
+def mach_to_speed(mach):
+    return mach*600
 ## Sinon on oublie la DB et on met diretement les coordonnées ici, dans tous les cas on peut garder les deux, la DB pour des points permanenents
 #et la création d'autres waypoints ici pour des points temporaires/pour les tests
 
@@ -32,18 +62,21 @@ Seuil1 = Waypoint(find_waypoint("01L")[1],find_waypoint("01L")[2],find_waypoint(
 Seuil2 = Waypoint(find_waypoint("19R")[1],find_waypoint("19R")[2],find_waypoint("19R")[3])
 ESUME = Waypoint(find_waypoint("ESUME")[1],find_waypoint("ESUME")[2],find_waypoint("ESUME")[3])
 WPT1 = Waypoint(find_waypoint("WPT1")[1],find_waypoint("WPT1")[2],find_waypoint("WPT1")[3])
+WPTA = Waypoint(find_waypoint("WPTA")[1],find_waypoint("WPTA")[2],find_waypoint("WPTA")[3])
+WPTB = Waypoint(find_waypoint("WPTB")[1],find_waypoint("WPTB")[2],find_waypoint("WPTB")[3])
+WPTC = Waypoint(find_waypoint("WPTC")[1],find_waypoint("WPTC")[2],find_waypoint("WPTC")[3])
 
-overfly = 0
-flyby = 1
-undefined_z = -1
 
-flight_plan_tour_de_piste_GAUCHE = []
-fptdpG =[] ##Flight Plan Tour De Piste Gauche
-CI = 0
-fptdpG.append(Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,overfly,0)
-fptdpG.append(ESUME.waypoint_identifier,ESUME.x,ESUME.y,flyby,undefined_z)
-fptdpG.append(WPT1.waypoint_identifier,WPT1.x,WPT1.y,flyby,undefined_z)
-fptdpG.append(Seuil2.waypoint_identifier,Seuil2.x,Seuil2.y,overfly,0)
+fptdpG.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,overfly,0])
+fptdpG.append([ESUME.waypoint_identifier,ESUME.x,ESUME.y,flyby,undefined_z])
+fptdpG.append([WPT1.waypoint_identifier,WPT1.x,WPT1.y,flyby,undefined_z])
+fptdpG.append([Seuil2.waypoint_identifier,Seuil2.x,Seuil2.y,overfly,0])
+
+fp_test = []
+fp_test.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,overfly,0])
+fp_test.append([WPTA.waypoint_identifier,WPTA.x,WPTA.y,flyby,undefined_z])
+fp_test.append([WPTB.waypoint_identifier,WPTB.x,WPTB.y,flyby,undefined_z])
+fp_test.append([WPTC.waypoint_identifier,WPTC.x,WPTC.y,flyby,undefined_z])
 
 
 
