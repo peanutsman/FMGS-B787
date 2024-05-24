@@ -1,12 +1,17 @@
 import sqlite3
 import performances as perf
 import math
+import conversion as c
 
 # Création de la base de données et connexion
 con = sqlite3.connect('nav_db.db')
 cur = con.cursor()
 
 ###CONSTANTS
+dbid = 1
+dbx = 2
+dby = 3
+
 overfly = 0
 flyby = 1
 undefined_z = -1
@@ -37,11 +42,6 @@ def find_waypoint_index_in_fp(waypoint_identifier: str, flight_plan: list):
             return i
     return -1
 
-def knots_to_ms(knots):
-    return knots*0.514444
-
-def deg_to_rad(deg):
-    return deg * math.pi / 180
 
 def cost_index_ias():
     if CI in range(0, 100):
@@ -64,25 +64,29 @@ def mach_to_speed(mach):
 #et la création d'autres waypoints ici pour des points temporaires/pour les tests
 
 ####AJOUT DES WAYPOINTS
-####Class waypoint : waypoint_identifier, x, y, z
-Seuil1 = Waypoint(find_waypoint("01L")[1],find_waypoint("01L")[2],find_waypoint("01L")[3])
-Seuil2 = Waypoint(find_waypoint("19R")[1],find_waypoint("19R")[2],find_waypoint("19R")[3])
-ESUME = Waypoint(find_waypoint("ESUME")[1],find_waypoint("ESUME")[2],find_waypoint("ESUME")[3])
-WPT1 = Waypoint(find_waypoint("WPT1")[1],find_waypoint("WPT1")[2],find_waypoint("WPT1")[3])
-WPTA = Waypoint(find_waypoint("WPTA")[1],find_waypoint("WPTA")[2],find_waypoint("WPTA")[3])
-WPTB = Waypoint(find_waypoint("WPTB")[1],find_waypoint("WPTB")[2],find_waypoint("WPTB")[3])
-WPTC = Waypoint(find_waypoint("WPTC")[1],find_waypoint("WPTC")[2],find_waypoint("WPTC")[3])
+####Class waypoint : waypoint_identifier, x, y
+Seuil1 = Waypoint(find_waypoint("01L")[dbid],find_waypoint("01L")[dbx],find_waypoint("01L")[dby])
+Seuil2 = Waypoint(find_waypoint("19R")[dbid],find_waypoint("19R")[dbx],find_waypoint("19R")[dby])
+ESUME = Waypoint(find_waypoint("ESUME")[dbid],find_waypoint("ESUME")[dbx],find_waypoint("ESUME")[dby])
+WPT1 = Waypoint(find_waypoint("WPT1")[dbid],find_waypoint("WPT1")[dbx],find_waypoint("WPT1")[dby])
+WPT2 = Waypoint(find_waypoint("WPT2")[dbid],find_waypoint("WPT2")[dbx],find_waypoint("WPT2")[dby])
+WPT3 = Waypoint(find_waypoint("WPT3")[dbid],find_waypoint("WPT3")[dbx],find_waypoint("WPT3")[dby])
+WPTA = Waypoint(find_waypoint("WPTA")[dbid],find_waypoint("WPTA")[dbx],find_waypoint("WPTA")[dby])
+WPTB = Waypoint(find_waypoint("WPTB")[dbid],find_waypoint("WPTB")[dbx],find_waypoint("WPTB")[dby])
+WPTC = Waypoint(find_waypoint("WPTC")[dbid],find_waypoint("WPTC")[dbx],find_waypoint("WPTC")[dby])
 
 #### DEFINITION DES PARAMETRES COST INDEX ET VEND
 CI = 0
-V_vent = 20 #knots
-Dir_Vent = 94
-V_Init = 150 ## en knots
+V_vent = 0 #knots
+Dir_Vent = 94 #degrés d'ou il vient
+V_Init = 400 ## en knots
 Gamma_Init = 0
 
-wind = [knots_to_ms(V_vent), deg_to_rad(Dir_Vent)+math.pi]
+wind = [c.knots_to_ms(V_vent), c.deg_to_rad(Dir_Vent)+math.pi]
 
 ###DIFFERENTS FLIGHT PLANS
+#Flight plan : [waypoint_identifier, x, y, flyby/overfly, z]
+#indice :      [0,                    1, 2, 3,            4]
 fptdpG =[] ##Flight Plan Tour De Piste Gauche
 fptdpG.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,overfly,0])
 fptdpG.append([ESUME.waypoint_identifier,ESUME.x,ESUME.y,flyby,undefined_z])
@@ -95,5 +99,13 @@ fp_test.append([WPTA.waypoint_identifier,WPTA.x,WPTA.y,flyby,undefined_z])
 fp_test.append([WPTB.waypoint_identifier,WPTB.x,WPTB.y,flyby,undefined_z])
 fp_test.append([WPTC.waypoint_identifier,WPTC.x,WPTC.y,flyby,undefined_z])
 
+fp_test1=   []
+fp_test1.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,overfly,0])
+fp_test1.append([Seuil2.waypoint_identifier,Seuil2.x,Seuil2.y,overfly,0])
+fp_test1.append([ESUME.waypoint_identifier,ESUME.x,ESUME.y,overfly,undefined_z])
+fp_test1.append([WPT1.waypoint_identifier,WPT1.x,WPT1.y,overfly,undefined_z])
+fp_test1.append([WPT2.waypoint_identifier,WPT2.x,WPT2.y,overfly,undefined_z])
+fp_test1.append([WPT3.waypoint_identifier,WPT3.x,WPT3.y,overfly,undefined_z])
+fp_test1.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,overfly,0])
 
-
+flight_plan = fp_test1

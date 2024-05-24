@@ -5,6 +5,7 @@ import time
 import math
 import flight_plan as fp
 import performances as perf
+import conversion as c
 
 app_name = "FMGS"
 bus_Ivy = "127.255.255.255:2010"
@@ -18,8 +19,10 @@ def on_die(*a):
     IvySendMsg("FGSStatus=Disconnected")
     IvyStop()
 
+FACTEUR =2
+t_minus_1 = 0
 recorded_data = None
-StateVector = None
+StateVector = [0, 0, 0, 0, 0, 0, 0]
 g = 9.81
 dirto_status = False
 wpt_courant = 0
@@ -27,9 +30,10 @@ volets = '0'
 landing_gear = 1
 overfly = 0
 flyby = 1
-epsilon_overfly = 10
+epsilon_overfly = 200.0 # à remplacer par Vitesse * delta T * facteur
 trans_alt = 5000
 VMAXFL100 = 250
+nomwpt = 0
 xpos = 1
 ypos = 2
 x = 0
@@ -37,66 +41,36 @@ y = 1
 first_wpt = 0
 SPDstatevector = 3
 ALTstatevector = 2
-type_wpt_fp = 4
+type_wpt_fp = 3
 v_vent =0
 dir_vent = 1
+declinaison = perf.perfos_avion(volets,landing_gear)['MagneticDeclination']
+flight_plan_used = fp.flight_plan
 
-flight_plan_used = fp.fptdpG
-#flight_plan_used = fp.fp_test
-
-def meters_to_feet(meters: float):
-    return meters * 3.28084
-
-def knots_to_ms(knots: float):
-    return knots * 0.514444
-
-def deg_to_rad(deg: float):
-    return deg * math.pi / 180
-def rad_to_deg(rad: float):
-    return rad * 180 / math.pi
-
-def on_msg(agent, *data):
-    global recorded_data
-    recorded_data = data [0]
-    print ("First arg in msg: %s" %data [0])
-    IvySendMsg("Bonjour")
-
-def on_msg_StateVector(agent, *data):
-    #data est un tuple de nombre d'arguments variable (*)
+#en entrée : state vector sur le bus IVY
+#en sortie : acquisition du statevector en variable globale
+def on_msg_StateVector(agent, *data :tuple):
     global StateVector
     StateVector = data #il va surement falloit récupérer les données intéressantes du string de state vector et les mettre dans une liste globale (StateVector) --> on a besoin de x,y,z,Vp 
-    print("La coordonée x est : %s\n" %data[0])
-    print("La coordonée y est : %s\n" %data[1])
-    print("La coordonée z est : %s\n" %data[2])
-    print("La vitesse est : %s\n" %data[3])
-    IvySendMsg("acquisition state vector par FGS")
 
+#en entrée : temps sur le bus IVY
+#en sortie : initialisation du state vector et envoi des perfos, du vent, de la vitesse, de la route et de l'altitude
 def on_msg_time(agent, *data):
     global dirto_status
-    ###INITIALISATION DU STATEVECTOR
-    if data[0] == "1.00":
-        x_premier_wpt = float(flight_plan_used[first_wpt][xpos])
-        y_premier_wpt = float(flight_plan_used[first_wpt][ypos])
-        xy_premier_wpt = [x_premier_wpt, y_premier_wpt]
-        xy_deuxieme_wpt = [float(flight_plan_used[first_wpt+1][xpos]), float(flight_plan_used[first_wpt+1][ypos])]
-
-        windspeed = fp.wind[v_vent]
-        winddir = fp.wind[dir_vent]
-        QFU = leg_cap(xy_premier_wpt, xy_deuxieme_wpt)
-        xpoint=fp.V_Init*math.cos(fp.Gamma_Init)*math.cos(QFU) +windspeed*math.cos(winddir)
-        ypoint=fp.V_Init*math.cos(fp.Gamma_Init)*math.sin(QFU) +windspeed*math.sin(winddir)
-        print(rad_to_deg(QFU),"QFU")
-        derive =math.asin(windspeed*math.sin(QFU-deg_to_rad(fp.Dir_Vent))/(knots_to_ms(fp.V_Init)*math.cos(deg_to_rad(fp.Gamma_Init))))
-        print("dérive:",rad_to_deg(derive))
-        cap_vent_piste = QFU -  derive
-        print("cap vent piste:",rad_to_deg(cap_vent_piste))
-        IvySendMsg("InitStateVector x=%s y=%s z=0.0000 Vp=100.0000 fpa=0.0000 psi=%s phi=0.0000" %(str(x_premier_wpt), str(y_premier_wpt),str(cap_vent_piste)))
+    global t_minus_1
+    global epsilon_overfly
     
+    t = float(data[0])
+    v = float(StateVector[SPDstatevector])
+    epsilon_overfly = FACTEUR*v*(t-t_minus_1)
+    t_minus_1 = t
+
+    ###INITIALISATION DE LA SIMULATION
+    if data[0] == "1.00":
+        init_simulation()
+
     ###ENVOI DES PERFOS
     envoi_perfo()
-    
-    ###ENVOI DU VENT
-    envoi_vent()
 
     ###ENVOI DE LA VITESSE MANAGEE
     envoi_vitesse()
@@ -107,47 +81,107 @@ def on_msg_time(agent, *data):
     ####ENVOI DE L'ALTITUDE MANAGEE
     envoi_altitude(flight_plan_used)
 
+#en entrée : statut des volets sur le bus IVY
+#en sortie : changement du statut des volets (variable globale)
 def on_msg_volets(agent, *statut_volet):
     global volets
     volets = statut_volet[0]
 
+#en entrée : statut du train d'atterrissage sur le bus IVY
+#en sortie : changement du statut du train d'atterrissage (variable globale)
 def on_msg_landing_gear(agent, *statut_landing_gear):
     global landing_gear
     landing_gear = statut_landing_gear[0]
 
 #en entrée : wpt = [nom_waypoint]
+#en sortie : changement du WPT séquencé (variable globale)
 def on_msg_dirto(agent, *wpt: tuple):
     global dirto_status, wpt_courant
     dirto_status = True
+    print(wpt[0])
     wpt_courant = fp.find_waypoint_index_in_fp(wpt[0], flight_plan_used)
+    print("Waypoint séquencé par le DIRTO: ", flight_plan_used[wpt_courant][nomwpt],"\n")
 
+#en entrée : N/A
+#en sortie : envoi state vector, envoi vent, envoit déclinaison magnétique
+def init_simulation():
+    ###INITIALISATION DU STATE VECTOR
+    x_premier_wpt = float(flight_plan_used[first_wpt][xpos])
+    y_premier_wpt = float(flight_plan_used[first_wpt][ypos])
+    xy_premier_wpt = [x_premier_wpt, y_premier_wpt]
+    xy_deuxieme_wpt = [float(flight_plan_used[first_wpt+1][xpos]), float(flight_plan_used[first_wpt+1][ypos])]
+    windspeed = fp.wind[v_vent]
+    QFU = leg_cap(xy_premier_wpt, xy_deuxieme_wpt)
+    print("QFU: GEO",c.rad_to_deg(QFU))
+    print(c.rad_to_deg(QFU),"QFU")
+    derive =math.asin(windspeed*math.sin(QFU-c.deg_to_rad(fp.Dir_Vent))/(c.knots_to_ms(fp.V_Init)*math.cos(deg_to_rad(fp.Gamma_Init))))
+    print("dérive:",c.rad_to_deg(derive))
+    cap_vent_piste = QFU -  derive 
+    print("cap vent piste:",c.rad_to_deg(cap_vent_piste))
+    V0 = c.knots_to_ms(fp.V_Init)
+    IvySendMsg("InitStateVector x=%s y=%s z=0.0000 Vp=%s fpa=0.0000 psi=%s phi=0.0000" %(str(x_premier_wpt), str(y_premier_wpt), V0, str(cap_vent_piste)))
+
+    ###ENVOI DU VENT
+    envoi_vent()
+
+    ###ENVOIE DE LA DECLINAISON MAGNETIQUE
+    envoi_declinaison()
+
+#en entrée : N/A
+#en sortie : envoi de la déclinaison magnétique sur le bus IVY
+def envoi_declinaison():
+    IvySendMsg("MagneticDeclination=%s" %declinaison)
+
+#en entrée : N/A
+#en sortie : envoi des performances de l'avion sur le bus IVY
 def envoi_perfo():
     perfos = perf.perfos_avion(volets, landing_gear)
     IvySendMsg("NxMax=%s NxMin=%s NzMax=%s NzMin=%s PMax=%s AlphaMax=%s AlphaMin=%s PhiMaxManuel=%s PhiMaxAutomatique=%s GammaMax=%s GammaMin=%s MagneticDeclination=%s" %(perfos["NxMax"], perfos["NxMin"], perfos["NzMax"], perfos["NzMin"], perfos["PMax"], perfos["AlphaMax"], perfos["AlphaMin"], perfos["PhiMaxManuel"], perfos["PhiMaxAutomatique"], perfos["GammaMax"], perfos["GammaMin"], perfos["MagneticDeclination"]))
 
+#en entrée : N/A
+#en sortie : envoi du vent sur le bus IVY
 def envoi_vent():
-    IvySendMsg("WindVelocity=%s WindDirection=%s" %(fp.wind[v_vent], fp.wind[dir_vent]))
+    IvySendMsg("WindComponent WindVelocity=%s WindDirection=%s" %(fp.wind[v_vent], fp.wind[dir_vent]))
 
+#en entrée : flight plan (liste de waypoints, type,altitude)
+#en sortie : changement du WPT séquencé (variable globale)
 def envoi_route(flight_plan :list):
     global wpt_courant
+    print("début séquencement\n")
     wpt_courant = sequencement_leg(flight_plan)
+    print("fin séquencement\n")
+    print("\n\nWaypoint séquencé: ", flight_plan_used[wpt_courant][nomwpt],"\n")
     xy_wpt_courant = [float(flight_plan[wpt_courant][xpos]), float(flight_plan[wpt_courant][ypos])]
-    xy_wpt_suivant = [float(flight_plan[wpt_courant+1][xpos]), float(flight_plan[wpt_courant+1][ypos])]
-    envoi_leg(xy_wpt_courant, xy_wpt_suivant)
+    xy_avion = [float(StateVector[x]), float(StateVector[y])]
+    print("index du wpt séquencé: ",wpt_courant)
+    print("len de fp -1 :",len(flight_plan)-1)
+    if dirto_status or wpt_courant == len(flight_plan)-1:
+        envoi_leg(xy_avion, xy_wpt_courant)
+    else:
+        print("ici")
+        xy_wpt_suivant = [float(flight_plan[wpt_courant+1][xpos]), float(flight_plan[wpt_courant+1][ypos])]
+        envoi_leg(xy_wpt_courant, xy_wpt_suivant)
 
-#en entrée : liste correspondant au waypoint dans le flight plan ([waypoint_identifier, x, y, z,overfly/flyby]) 
+#en entrée : x,y de deux waypoints
+#en sortie : envoi des coordonnées du waypoint de départ et du cap du leg sur le bus IVY
 def envoi_leg(xy_waypoint1: list, xy_waypoint2 : list):
+    xy_avion = [float(StateVector[x]), float(StateVector[y])]
+    print("distance entre les deux wpt:",distance_to_go(xy_avion, xy_waypoint2))
     cap_leg = leg_cap(xy_waypoint1, xy_waypoint2)
     IvySendMsg("LegX=%s LegY=%s LegCap=%s" %(xy_waypoint1[x],  xy_waypoint1[y], cap_leg))
+    IvySendMsg("InitStateVector x=%s y=%s z=0.0000 Vp=%s fpa=0.0000 psi=%s phi=0.0000" %(StateVector[x], StateVector[y], c.knots_to_ms(fp.V_Init),cap_leg))
+
 
 #### ENVOIE  DE LA VITESSE/MACH MANAGE
+#en entrée : N/A
+#en sortie : envoi de la vitesse/mach managée sur le bus IVY
 def envoi_vitesse():
     alt = float(StateVector[ALTstatevector])
     ###CAS ou altitude sous la trans alt
     if alt in range(0,trans_alt):
-        speed = knots_to_ms(fp.cost_index_ias())
+        speed = c.knots_to_ms(fp.cost_index_ias())
         if speed > VMAXFL100:
-            speed = knots_to_ms(VMAXFL100)
+            speed = c.knots_to_ms(VMAXFL100)
         IvySendMsg("VcManaged=%s" %speed)
     ###CAS ou altitude au dessus de la trans alt
     if alt > 5000:
@@ -157,31 +191,40 @@ def envoi_vitesse():
         IvySendMsg("MachManaged=%s" %mach)
 
 #en entrée : liste correspondant au waypoint dans le flight plan ([waypoint_identifier, x, y, z,overfly/flyby]) 
+#en sortie : distance à partir de laquelle il faut séquencer le prochain wpt du PDV
 def distance_to_end_leg(xy_waypoint1, xy_waypoint2, xy_waypoint3):
     delta_cap_wpt3_wpt1 = leg_cap(xy_waypoint2, xy_waypoint3) - leg_cap(xy_waypoint1, xy_waypoint2)
     vitesse = float(StateVector[SPDstatevector]) ##convertir en m/s la string du state vector
     rayon = vitesse**2/(g*math.atan(perf.perfos_avion(volets,landing_gear)['PhiMaxAutomatique']))
     distance_virage = rayon * math.tan(delta_cap_wpt3_wpt1/2)
+    distance_virage = math.sqrt(distance_virage**2)
     return distance_virage
 
-#en entrée : deux liste correspondant aux coord x,y waypoint 
+#en entrée : deux liste correspondant aux coord x,y waypoint
+#en sortie : angle nord GEO entre les deux WPTs 
 def leg_cap(xy_waypoint1, xy_waypoint2):
-    cap_leg = math.atan2(xy_waypoint2[y]-xy_waypoint1[y],xy_waypoint2[x]-xy_waypoint1[x])
+    cap_leg = math.atan2(xy_waypoint2[y]-xy_waypoint1[y],xy_waypoint2[x]-xy_waypoint1[x]) #/rapport au Nord GEO
     return cap_leg
 
+#en entrée : x,y de deux waypoints
+#en sortie : distance entre les deux waypoints
 def distance_to_go(xy_waypoint1, xy_waypoint2):
     distance = math.sqrt((xy_waypoint2[x] - xy_waypoint1[x])**2 + (xy_waypoint2[y] - xy_waypoint1[y])**2)
     return distance
 
-def sequencement_leg(flight_plan :list):
+#en entrée : flight plan (liste de waypoints, type,altitude)
+#en sortie : index du waypoint à séquencer en fonction des angles de virage et de la position avion
+def sequencement_leg(flight_plan :list[list]):
     global dirto_status, wpt_courant
     xy_avion = [float(StateVector[x]), float(StateVector[y])]
     
-    ### SI FIN DE PLAN DE VOL
+    ###SI dernier leg OU si Wpt_courant = le dernier WPT du PDV --> envoi du dernier leg
     if wpt_courant == len(flight_plan)-1:
         return wpt_courant
-    
+    if dirto_status == False and wpt_courant == len(flight_plan)-2:
+        return wpt_courant
     ####DIR TO
+    print("dirto status:\n",dirto_status)
     if dirto_status:
         wpt_index_after_dirto = wpt_courant+1
         xy_wpt_dirto = [float(flight_plan[wpt_courant][xpos]), float(flight_plan[wpt_courant][ypos])]
@@ -189,16 +232,40 @@ def sequencement_leg(flight_plan :list):
         if flight_plan[wpt_courant][type_wpt_fp] == overfly:
             if distance_to_go(xy_avion, xy_wpt_dirto) < epsilon_overfly:
                 dirto_status = False
-                return wpt_index_after_dirto
+                return wpt_courant
         elif flight_plan[wpt_courant][type_wpt_fp] == flyby:
             if distance_to_go(xy_avion, xy_wpt_dirto) < 2*distance_to_end_leg(xy_avion, xy_wpt_dirto, xy_next_waypoint):
                 dirto_status = False
-                return wpt_index_after_dirto
+                return wpt_courant
         
         return wpt_courant
     
     ####SEQUENCEMENT LEGS
-    for wpt in range(1, len(flight_plan)-1):
+    xy_wpt=[float(flight_plan[wpt_courant+1][xpos]), float(flight_plan[wpt_courant+1][ypos])]
+    xy_previous_wpt = [float(flight_plan[wpt_courant][xpos]), float(flight_plan[wpt_courant][ypos])]
+    xy_wpt_suivant = [float(flight_plan[wpt_courant+2][xpos]), float(flight_plan[wpt_courant+2][ypos])]
+    distance = distance_to_go(xy_wpt, xy_avion)
+    print("distance entre avion et wpt à séquencer?: ",distance)
+    print("distance dans laquelle il faut séquencer si fly by:",2*distance_to_end_leg(xy_previous_wpt, xy_wpt, xy_wpt_suivant))
+    print("distance overfly:",epsilon_overfly)
+    print("wpt de test : ",flight_plan[wpt_courant+1][nomwpt]," ",flight_plan[wpt_courant+1][type_wpt_fp])
+    
+    
+    if flight_plan[wpt_courant+1][type_wpt_fp] == flyby:
+        if distance < 2*distance_to_end_leg(xy_previous_wpt, xy_wpt, xy_wpt_suivant):
+            print("envoi car flyby\n")
+            return wpt_courant+1 #index du waypoint dans le flight plan
+    elif flight_plan[wpt_courant+1][type_wpt_fp] == overfly:
+        if distance < epsilon_overfly:
+            print("envoi car overfly\n")
+            return wpt_courant+1
+    """
+    if wpt_courant == 0:
+        i = 1
+    else:
+        i = wpt_courant
+    
+    for wpt in range(i, len(flight_plan)-1):
         xy_wpt=[float(flight_plan[wpt][xpos]), float(flight_plan[wpt][ypos])]
         xy_previous_wpt = [float(flight_plan[wpt-1][xpos]), float(flight_plan[wpt-1][ypos])]
         xy_wpt_suivant = [float(flight_plan[wpt+1][xpos]), float(flight_plan[wpt+1][ypos])]
@@ -209,9 +276,13 @@ def sequencement_leg(flight_plan :list):
         elif flight_plan[wpt][type_wpt_fp] == overfly:
             if distance < epsilon_overfly:
                 return wpt
+    """
+    print("pas de séquencement--> on continue sur le même leg\n")
     return wpt_courant ## --> dans le cas ou on continue sur le leg actuel
     ### la méthode doit aussi prendre en compte qu'après le dernier waypoint : arrêt de l'avion
 
+#en entrée : flight plan (liste de waypoints, type,altitude)
+#en sortie : envoi de l'altitude managée du wpt du début de leg sur le bus IVY
 def envoi_altitude(flight_plan :list):
     altitude = flight_plan[wpt_courant][type_wpt_fp]
     if altitude == fp.undefined_z:
