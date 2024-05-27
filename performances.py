@@ -21,7 +21,7 @@ nx_max_volets = {'0': 0.5,
 #en entrée : volets et train rentré ou sorti
 #en sortie : dictionnaire des performances de l'avion
 def perfos_avion(volets: str, landing_gear: int):
-    if landing_gear==1:
+    if landing_gear==0:
         nz_max = nz_max_volets[volets]-0.2
         nz_min = nz_min_volets[volets]+0.2
         nx_max = nx_max_volets[volets]

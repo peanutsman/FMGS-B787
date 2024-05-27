@@ -23,7 +23,7 @@ FIRST_WPT = 0
 V_VENT, DIR_VENT = 0, 1
 #Initialisation des variables globales
 t_minus_1 = 0
-StateVector, volets, landing_gear = [0, 0, 0, 0, 0, 0, 0], '0', 1
+StateVector, volets, landing_gear = [0, 0, 0, 0, 0, 0, 0], '0', 0
 dirto_status = False
 offset_status, offset_dist, offset_side = None, None, None
 epsilon_overfly = 200.0
@@ -34,21 +34,6 @@ FACTEUR = 2 #facteur de sécurité pour le epsilon_overfly
 OVERFLY, FLYBY = 0, 1
 TRANS_ALT_FT = int(fp.trans_alt)
 IASMAXFL100, FL100_FT = fp.VMAXFL100, 10000
-
-
-def on_msg(agent, *data):
-    try:
-        pos = int(data[0]) #conversion de la position en entier
-        main_view.signal_update_posi.emit(pos) #emit signal
-    except ValueError:
-        print(f"Invalid position received: {data[0]}")
-
-def sur_msg(agent, *data):
-    try:
-        pos = int(data[0])
-        main_view.signal_update_train.emit(pos)
-    except ValueError:
-        print(f"Invalid position received: {data[0]}")
     
 
 #en entrée : state vector sur le bus IVY
@@ -79,12 +64,23 @@ def on_msg_time(agent, *data):
 def on_msg_volets(agent, *statut_volet):
     global volets
     volets = statut_volet[0]
+    try:
+        pos = int(volets) #conversion de la position en entier
+        main_view.signal_update_posi.emit(pos) #emit signal
+    except ValueError:
+        print(f"Invalid position received: {volets}")
 
 #en entrée : statut du train d'atterrissage sur le bus IVY
 #en sortie : changement du statut du train d'atterrissage (variable globale)
 def on_msg_landing_gear(agent, *statut_landing_gear):
     global landing_gear
     landing_gear = statut_landing_gear[0]
+    print("Statut :",landing_gear)
+    try:
+        pos = int(landing_gear)
+        main_view.signal_update_train.emit(pos)
+    except ValueError:
+        print(f"Invalid position received: {landing_gear}")
 
 #en entrée : wpt = [nom_waypoint]
 #en sortie : changement du WPT séquencé (variable globale)
@@ -171,13 +167,13 @@ def envoi_vitesse():
             ias = c.knots_to_ms(IASMAXFL100)
         else:
             ias = c.knots_to_ms(ias)
-        IvySendMsg("VcManaged=%s" %ias)
+        IvySendMsg("Statut=Vc MachManaged=0 VcManaged=%s" %ias)
     ###CAS ou altitude au dessus de la trans alt
     if alt > TRANS_ALT_FT:
         mach = fp.cost_index_mach()
         if alt < FL100_FT and c.mach_to_tas(mach) > c.ias_to_tas(IASMAXFL100,alt):
             mach = c.tas_to_mach(c.ias_to_tas(IASMAXFL100, alt))
-        IvySendMsg("MachManaged=%s" %mach)
+        IvySendMsg("Statut=Mach MachManaged=%s VcManaged=0" %mach)
 
 #en entrée : flight plan (liste de waypoints, type,altitude)
 #en sortie : envoi de l'altitude managée du wpt du début de leg sur le bus IVY
@@ -317,7 +313,7 @@ if __name__ == "__main__":
     #bus_Ivy = "127.255.255.255:2010"
     #bus_Ivy = "255.255.248.0.2010"
     #bus_Ivy = "172.20.10.255:2087"
-    bus_Ivy = "224.255.255.255:2010"
+    bus_Ivy = "192.168.106.255:2087"
 
     def initialisation_FMS (*a):
         IvySendMsg("FGSStatus=Connected")
@@ -329,8 +325,6 @@ if __name__ == "__main__":
     IvyInit (app_name, "Ready to receive", on_die_fms, initialisation_FMS)
     IvyStart (bus_Ivy)
 
-    IvyBindMsg(on_msg, '^VoletState=(\S+)') #liaison du message Ivy à la fonction on_msg
-    IvyBindMsg(sur_msg, '^LandingGearState=(\S+)') #liaison du message Ivy à la fonction sur_msg
     IvyBindMsg(on_msg_StateVector, '^StateVector x=(.*) y=(.*) z=(.*) Vp=(.*) fpa=(.*) psi=(.*) phi=(.*)')
     IvyBindMsg(on_msg_time, '^Time t=(.*)')
     IvyBindMsg(on_msg_dirto, '^DirTo Wpt=(.*)')
