@@ -22,8 +22,9 @@ class Train(QWidget):
     @QtCore.pyqtSlot()    
     def update_train_from_inside(self):
         #self.train.setValue(posi) #mise à jour de la position du train
-        self.signal_emitter.signal_update_train.emit(self.train.value()) #emit signal
         IvySendMsg("LandingGearState=%s" % self.train.value()) #envoi du message Ivy
+        self.signal_emitter.signal_update_train.emit(self.train.value()) #emit signal
+        
         
     @QtCore.pyqtSlot(int)
     def update_train_from_outside(self, posi):

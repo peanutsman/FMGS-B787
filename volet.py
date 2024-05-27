@@ -24,8 +24,9 @@ class Volet(QWidget):
     @QtCore.pyqtSlot()  
     def update_posi_from_inside(self):
         #self.volet.setValue(pos) #mise à jour de la position du volet
-        self.signal_emitter.signal_update_posi.emit(self.volet.value()) #emit signal
         IvySendMsg("VoletState=%s" % self.volet.value()) #envoi du message Ivy
+        self.signal_emitter.signal_update_posi.emit(self.volet.value()) #emit signal
+        
         
             
     @QtCore.pyqtSlot(int)   
