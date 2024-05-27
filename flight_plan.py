@@ -2,7 +2,7 @@ import sqlite3
 import performances as perf
 import math
 import conversion as c
-import fp_test as f
+
 # Création de la base de données et connexion
 #nav_db.db : Waypoints (IdWaypoint, waypoint_identifier, x, y)
 con = sqlite3.connect('nav_db.db')

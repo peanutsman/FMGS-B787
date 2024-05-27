@@ -7,6 +7,11 @@ import conversion as c
 from ivy . std_api import *
 import math
 from scipy.constants import g
+import sys
+from PyQt5.QtWidgets import QApplication
+from ivy.std_api import *
+from mainwindow import MainView
+import ressources_rc
 
 #Index des paramètres des waypoint dans le flight plan
 NOMWPT_FP, X_FP, Y_FP, TYPE_WPT_FP = 0, 1, 2, 3
@@ -30,7 +35,22 @@ OVERFLY, FLYBY = 0, 1
 TRANS_ALT_FT = int(fp.trans_alt)
 IASMAXFL100, FL100_FT = fp.VMAXFL100, 10000
 
+
+def on_msg(agent, *data):
+    try:
+        pos = int(data[0]) #conversion de la position en entier
+        main_view.signal_update_posi.emit(pos) #emit signal
+    except ValueError:
+        print(f"Invalid position received: {data[0]}")
+
+def sur_msg(agent, *data):
+    try:
+        pos = int(data[0])
+        main_view.signal_update_train.emit(pos)
+    except ValueError:
+        print(f"Invalid position received: {data[0]}")
     
+
 #en entrée : state vector sur le bus IVY
 #en sortie : acquisition du statevector en variable globale
 def on_msg_StateVector(agent, *data :tuple):
@@ -286,28 +306,38 @@ def xy_offset(x_wpt, y_wpt):
         y = y_wpt + offset_dist*math.sin(90-cap)
     return [x, y]
 #######################################################################################################################
-#Bus IVY
-app_name = "FMGS"
-bus_Ivy = "127.255.255.255:2010"
-#bus_Ivy = "255.255.248.0.2010"
-#bus_Ivy = "172.20.10.255:2087"
 
-def initialisation_FMS (*a):
-    IvySendMsg("FGSStatus=Connected")
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    main_view = MainView()
+    main_view.show()
 
-def on_die_fms(*a):
-    IvySendMsg("FGSStatus=Disconnected")
-    IvyStop()
+    #Bus IVY
+    app_name = "FMGS"
+    #bus_Ivy = "127.255.255.255:2010"
+    #bus_Ivy = "255.255.248.0.2010"
+    #bus_Ivy = "172.20.10.255:2087"
+    bus_Ivy = "224.255.255.255:2010"
 
-IvyInit (app_name, "Ready to receive", on_die_fms, initialisation_FMS)
-IvyStart (bus_Ivy)
+    def initialisation_FMS (*a):
+        IvySendMsg("FGSStatus=Connected")
 
-IvyBindMsg(on_msg_StateVector, '^StateVector x=(.*) y=(.*) z=(.*) Vp=(.*) fpa=(.*) psi=(.*) phi=(.*)')
-IvyBindMsg(on_msg_time, '^Time t=(.*)')
-IvyBindMsg(on_msg_dirto, '^DirTo Wpt=(.*)')
-IvyBindMsg(on_msg_volets, '^VoletState=(.*)')
-IvyBindMsg(on_msg_landing_gear, '^LandingGearState=(.*)')
-IvyBindMsg(on_msg_offset, '^OffSet=(.*) Side=(.*)')
-IvyMainLoop()
+    def on_die_fms(*a):
+        IvySendMsg("FGSStatus=Disconnected")
+        IvyStop()
 
-#######################################################################################################################
+    IvyInit (app_name, "Ready to receive", on_die_fms, initialisation_FMS)
+    IvyStart (bus_Ivy)
+
+    IvyBindMsg(on_msg, '^VoletState=(\S+)') #liaison du message Ivy à la fonction on_msg
+    IvyBindMsg(sur_msg, '^LandingGearState=(\S+)') #liaison du message Ivy à la fonction sur_msg
+    IvyBindMsg(on_msg_StateVector, '^StateVector x=(.*) y=(.*) z=(.*) Vp=(.*) fpa=(.*) psi=(.*) phi=(.*)')
+    IvyBindMsg(on_msg_time, '^Time t=(.*)')
+    IvyBindMsg(on_msg_dirto, '^DirTo Wpt=(.*)')
+    IvyBindMsg(on_msg_volets, '^VoletState=(.*)')
+    IvyBindMsg(on_msg_landing_gear, '^LandingGearState=(.*)')
+    IvyBindMsg(on_msg_offset, '^OffSet=(.*) Side=(.*)')
+    #IvyMainLoop()
+    sys.exit(app.exec_())
+
+    #######################################################################################################################
