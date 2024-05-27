@@ -38,6 +38,7 @@ def perfos_avion(volets: str, landing_gear: int):
               "NzMax": nz_max,
               "NzMin": nz_min,
               "PMax": 0.7,
+              "PMin": -0.7,
               "AlphaMax": c.deg_to_rad(15),
               "AlphaMin": c.deg_to_rad(-5),
               "PhiMaxManuel": c.deg_to_rad(66),

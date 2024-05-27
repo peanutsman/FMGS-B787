@@ -104,7 +104,8 @@ fp_test1.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,overfly,0])
 CI = 0
 V_vent = 0 # en knots
 Dir_Vent = 94 #degrés d'ou il vient
-V_Init = 400 ## en knots
+V_Init = 400 ## en knots IAS
+Z_Init = 0 ## en ft
 Gamma_Init = 0 ## en degrés
 trans_alt = 5000 ## en ft
 VMAXFL100 = 250 ## en knots
