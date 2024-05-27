@@ -302,7 +302,8 @@ def xy_offset(x_wpt, y_wpt):
         y = y_wpt + offset_dist*math.sin(90-cap)
     return [x, y]
 #######################################################################################################################
-def main():
+
+if __name__ == "__main__":
     app = QApplication(sys.argv)
     main_view = MainView()
     main_view.show()
@@ -312,8 +313,7 @@ def main():
     #bus_Ivy = "127.255.255.255:2010"
     #bus_Ivy = "255.255.248.0.2010"
     #bus_Ivy = "172.20.10.255:2087"
-    #bus_Ivy = "192.168.106.255:2087"
-    bus_Ivy = "224.255.255.255:2010"
+    bus_Ivy = "192.168.106.255:2087"
 
     def initialisation_FMS (*a):
         IvySendMsg("FGSStatus=Connected")
@@ -333,8 +333,5 @@ def main():
     IvyBindMsg(on_msg_offset, '^OffSet=(.*) Side=(.*)')
     #IvyMainLoop()
     sys.exit(app.exec_())
-    
-if __name__ == "__main__":
-    main()
 
     #######################################################################################################################
