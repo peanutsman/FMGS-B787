@@ -9,6 +9,9 @@ def feet_to_meters(feet: float):
 def knots_to_ms(knots: float):
     return knots * 0.514444
 
+def ms_to_knots(ms: float):
+    return ms / 0.514444
+
 def ias_to_tas(ias: float, altitude: float):
     return ias - altitude/(2*100)
 
@@ -21,10 +24,10 @@ def deg_to_rad(deg: float):
 def rad_to_deg(rad: float):
     return rad * 180 / pi
 
-def speed_to_mach(speed: float):
+def tas_to_mach(speed: float):
     return speed / 600
 
-def mach_to_speed(mach: float):
+def mach_to_tas(mach: float):
     return mach * 600
 
 def nm_to_m(nm: float):

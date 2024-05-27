@@ -2,8 +2,8 @@ import conversion as c
 
 VMO = 350
 MMO = 0.90
-VMO_landing_gear = 240
-MMO_landing_gear = 240/600
+VMO_LG = 240
+MMO_LG = 240/600
 
 nz_max_volets = {'0': 2.5,
                  '1': 2.3,
@@ -25,8 +25,8 @@ def perfos_avion(volets: str, landing_gear: int):
         nz_max = nz_max_volets[volets]-0.2
         nz_min = nz_min_volets[volets]+0.2
         nx_max = nx_max_volets[volets]
-        VNE= VMO_landing_gear
-        NEM = MMO_landing_gear
+        VNE= VMO_LG
+        NEM = MMO_LG
     else:
         nz_max = nz_max_volets[volets]
         nz_min = nz_min_volets[volets]
@@ -46,9 +46,9 @@ def perfos_avion(volets: str, landing_gear: int):
               "GammaMax": c.deg_to_rad(10),
               "GammaMin": c.deg_to_rad(-5),
               "MagneticDeclination": 0.22654374,
-              "VMO": VNE,
+              "VMO": c.knots_to_ms(VNE),
               "MMO": NEM,
-              "V2": 150,
-              "MinMach": 150/600
+              "V2": c.knots_to_ms(150),
+              "MinMach": c.ias_to_tas(150,0)/600
               }     
     return perfos
