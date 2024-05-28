@@ -26,7 +26,7 @@
    <string>Lever Widget</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-image: url(:/img/train1.png);</string>
+   <string notr="true"/>
   </property>
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
