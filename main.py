@@ -27,7 +27,7 @@ StateVector, volets, landing_gear = [0, 0, 0, 0, 0, 0, 0], '0', 0
 dirto_status = False
 offset_status, offset_dist, offset_side = None, None, None
 epsilon_overfly = 200.0
-declinaison = perf.perfos_avion(volets,landing_gear)['MagneticDeclination']
+declinaison = perf.perfos_avion(volets,landing_gear,0)['MagneticDeclination']
 flight_plan_used, wpt_courant = fp.flight_plan, 0
 #Constantes
 FACTEUR = 2 #facteur de sécurité pour le epsilon_overfly 
@@ -41,6 +41,12 @@ IASMAXFL100, FL100_FT = fp.VMAXFL100, 10000
 def on_msg_StateVector(agent, *data :tuple):
     global StateVector
     StateVector = data #il va surement falloit récupérer les données intéressantes du string de state vector et les mettre dans une liste globale (StateVector) --> on a besoin de x,y,z,Vp 
+    ###ENVOI DE LA VITESSE MANAGEE
+    envoi_vitesse()
+    ###ENVOIE DES LEGS
+    envoi_leg(flight_plan_used)
+    ####ENVOI DE L'ALTITUDE MANAGEE
+    envoi_altitude(flight_plan_used)
 
 #en entrée : temps sur le bus IVY
 #en sortie : initialisation du state vector et envoi des perfos, du vent, de la vitesse, de la route et de l'altitude
@@ -52,12 +58,7 @@ def on_msg_time(agent, *data):
     maj_epsilon_overfly(float(data[0]))
     ###ENVOI DES PERFOS
     envoi_perfo()
-    ###ENVOI DE LA VITESSE MANAGEE
-    envoi_vitesse()
-    ###ENVOIE DES LEGS
-    envoi_leg(flight_plan_used)
-    ####ENVOI DE L'ALTITUDE MANAGEE
-    envoi_altitude(flight_plan_used)
+
 
 #en entrée : statut des volets sur le bus IVY
 #en sortie : changement du statut des volets (variable globale)
@@ -74,10 +75,10 @@ def on_msg_volets(agent, *statut_volet):
 #en sortie : changement du statut du train d'atterrissage (variable globale)
 def on_msg_landing_gear(agent, *statut_landing_gear):
     global landing_gear
-    landing_gear = statut_landing_gear[0]
+    landing_gear = int(statut_landing_gear[0])
     print("Statut :",landing_gear)
     try:
-        pos = int(landing_gear)
+        pos = landing_gear
         main_view.signal_update_train.emit(pos)
     except ValueError:
         print(f"Invalid position received: {landing_gear}")
@@ -153,8 +154,8 @@ def maj_epsilon_overfly(t):
 #en entrée : N/A
 #en sortie : envoi des performances de l'avion sur le bus IVY
 def envoi_perfo():
-    perfos = perf.perfos_avion(volets, landing_gear)
-    IvySendMsg("Performances NxMax=%s NxMin=%s NzMax=%s NzMin=%s PMax=%s PMin=%s AlphaMax=%s AlphaMin=%s PhiMaxManuel=%s PhiMaxAutomatique=%s GammaMax=%s GammaMin=%s Vmo=%s Mmo=%s" %(perfos["NxMax"], perfos["NxMin"], perfos["NzMax"], perfos["NzMin"], perfos["PMax"], perfos["PMin"], perfos["AlphaMax"], perfos["AlphaMin"], perfos["PhiMaxManuel"], perfos["PhiMaxAutomatique"], perfos["GammaMax"], perfos["GammaMin"], perfos["VMO"], perfos["MMO"]))
+    perfos = perf.perfos_avion(volets, landing_gear, float(StateVector[ALT_SV]))
+    IvySendMsg("Performances NxMax=%s NxMin=%s NzMax=%s NzMin=%s PMax=%s PMin=%s AlphaMax=%s AlphaMin=%s PhiMaxManuel=%s PhiMaxAutomatique=%s GammaMax=%s GammaMin=%s Vmo=%s Vmin=%s Mmo=%s Mmin=%s" %(perfos["NxMax"], perfos["NxMin"], perfos["NzMax"], perfos["NzMin"], perfos["PMax"], perfos["PMin"], perfos["AlphaMax"], perfos["AlphaMin"], perfos["PhiMaxManuel"], perfos["PhiMaxAutomatique"], perfos["GammaMax"], perfos["GammaMin"], perfos["VMO"], perfos["V2"], perfos["MMO"], perfos["MinMach"]))
 
 #en entrée : N/A
 #en sortie : envoi de la vitesse/mach managée sur le bus IVY
@@ -190,7 +191,7 @@ def envoi_axe(xy_waypoint1: list, xy_waypoint2 : list):
     #print("distance entre les deux wpt:",distance_to_go(xy_avion, xy_waypoint2))
     cap_axe = axe_cap(xy_waypoint1, xy_waypoint2)
     IvySendMsg("AxeFlightPlan LegX=%s LegY=%s LegCap=%s" %(xy_waypoint1[X_SV],  xy_waypoint1[Y_SV], cap_axe))
-    IvySendMsg("InitStateVector x=%s y=%s z=0.0000 Vp=%s fpa=0.0000 psi=%s phi=0.0000" %(StateVector[X_SV], StateVector[Y_SV], c.knots_to_ms(c.ias_to_tas(fp.V_Init,0)),cap_axe))
+    #IvySendMsg("InitStateVector x=%s y=%s z=%s Vp=%s fpa=0.0000 psi=%s phi=0.0000" %(StateVector[X_SV], StateVector[Y_SV], StateVector[ALT_SV], c.knots_to_ms(c.ias_to_tas(fp.V_Init,0)),cap_axe))
 
 #en entrée : flight plan (liste de waypoints, type,altitude)
 #en sortie : changement du WPT séquencé (variable globale)
@@ -271,7 +272,7 @@ def sequencement_leg(flight_plan :list[list]):
 def distance_to_end_leg(xy_waypoint1, xy_waypoint2, xy_waypoint3):
     delta_cap_wpt3_wpt1 = axe_cap(xy_waypoint2, xy_waypoint3) - axe_cap(xy_waypoint1, xy_waypoint2)
     vitesse = float(StateVector[SPD_SV]) ##convertir en m/s la string du state vector
-    rayon = vitesse**2/(g*math.atan(perf.perfos_avion(volets,landing_gear)['PhiMaxAutomatique']))
+    rayon = vitesse**2/(g*math.atan(perf.perfos_avion(volets,landing_gear,float(StateVector[ALT_SV]))['PhiMaxAutomatique']))
     distance_virage = rayon * math.tan(delta_cap_wpt3_wpt1/2)
     distance_virage = math.sqrt(distance_virage**2)
     return distance_virage
@@ -310,10 +311,11 @@ if __name__ == "__main__":
 
     #Bus IVY
     app_name = "FMGS"
-    #bus_Ivy = "127.255.255.255:2010"
+    bus_Ivy = "127.255.255.255:2010"
+    #bus_Ivy = "172.20.10.15:2087"
     #bus_Ivy = "255.255.248.0.2010"
     #bus_Ivy = "172.20.10.255:2087"
-    bus_Ivy = "192.168.106.255:2087"
+    #bus_Ivy_nonoelastico = "192.168.106.255:2087"
 
     def initialisation_FMS (*a):
         IvySendMsg("FGSStatus=Connected")

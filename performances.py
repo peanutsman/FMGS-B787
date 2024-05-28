@@ -1,5 +1,5 @@
 import conversion as c
-
+from math import acos
 VMO = 350
 MMO = 0.90
 VMO_LG = 240
@@ -20,17 +20,23 @@ nx_max_volets = {'0': 0.5,
 
 #en entrée : volets et train rentré ou sorti
 #en sortie : dictionnaire des performances de l'avion
-def perfos_avion(volets: str, landing_gear: int):
+def perfos_avion(volets: str, landing_gear: int, alt=float):
+    if alt == 0:
+        red = 0
+    else:
+        red = 0.5*alt/10000
     if landing_gear==0:
-        nz_max = nz_max_volets[volets]-0.2
+        nz_max = nz_max_volets[volets]-0.2-red
         nz_min = nz_min_volets[volets]+0.2
         nx_max = nx_max_volets[volets]
+        phimax = acos(1/nz_max)
         VNE= VMO_LG
         NEM = MMO_LG
     else:
-        nz_max = nz_max_volets[volets]
+        nz_max = nz_max_volets[volets]-red
         nz_min = nz_min_volets[volets]
         nx_max = nx_max_volets[volets]
+        phimax = acos(1/nz_max)
         VNE = VMO
         NEM = MMO
     perfos = {"NxMax": nx_max,
@@ -42,7 +48,7 @@ def perfos_avion(volets: str, landing_gear: int):
               "AlphaMax": c.deg_to_rad(15),
               "AlphaMin": c.deg_to_rad(-5),
               "PhiMaxManuel": c.deg_to_rad(66),
-              "PhiMaxAutomatique": c.deg_to_rad(30),
+              "PhiMaxAutomatique": phimax,
               "GammaMax": c.deg_to_rad(10),
               "GammaMin": c.deg_to_rad(-5),
               "MagneticDeclination": 0.22654374,

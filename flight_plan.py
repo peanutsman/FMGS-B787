@@ -13,8 +13,8 @@ ID_DB, X_DB, Y_DB = 1, 2, 3
 ###Constantes
 OVERFLY, FLYBY, UNDEFINED_Z = 0, 1, -1
 #Initialisation des variables
-V2_IAS, VMO_IAS = c.ms_to_knots(perf.perfos_avion('0',0)["V2"]), c.ms_to_knots(perf.perfos_avion('0',0)["VMO"])
-MIN_MACH, MMO = perf.perfos_avion('0',0)["MinMach"], perf.perfos_avion('0',0)["MMO"]
+V2_IAS, VMO_IAS = c.ms_to_knots(perf.perfos_avion('0',0,0)["V2"]), c.ms_to_knots(perf.perfos_avion('0',0,0)["VMO"])
+MIN_MACH, MMO = perf.perfos_avion('0',0,0)["MinMach"], perf.perfos_avion('0',0,0)["MMO"]
 
 
 class Waypoint:
