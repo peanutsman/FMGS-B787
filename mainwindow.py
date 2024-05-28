@@ -29,8 +29,19 @@ class MainView(QWidget):
     def init_ui(self):
         hbox = QHBoxLayout() #layout horizontal
         hbox.addWidget(self.volet) #ajout de l'objet volet
-        hbox.addWidget(self.train) #ajout de l'objet train
-
-        self.setLayout(hbox) #définition du layout de la fenêtre
+        qwid_backg = QWidget()
+        qwid_backg.setStyleSheet("background-image: url(:/img/train1.png);")
+        qwid_backg.lower()
+        hbox.addWidget(qwid_backg)
+        self.setLayout(hbox)
+        
+        
+        self.train.show() #ajout de l'objet train
+        self.train.move(185,18)
+        self.train.raise_()
+        self.train.setStyleSheet("background-color: rgb(203, 203, 203);")
+        
+        
+        self.setFixedSize(442, 370) #définition de la taille de la fenêtre
         
         
