@@ -86,7 +86,7 @@ fp_test_dirto = []
 fp_test_dirto.append([Seuil1.waypoint_identifier, Seuil1.x, Seuil1.y, OVERFLY, 0])
 fp_test_dirto.append([Seuil2.waypoint_identifier, Seuil2.x, Seuil2.y, OVERFLY, 0])
 fp_test_dirto.append([ESUME.waypoint_identifier, ESUME.x, ESUME.y, FLYBY,0])
-fp_test_dirto.append([WPTA.waypoint_identifier, WPTA.x, WPTA.y, OVERFLY, 0])
+fp_test_dirto.append([WPTA.waypoint_identifier, WPTA.x, WPTA.y, FLYBY, 0])
 fp_test_dirto.append([WPTB.waypoint_identifier, WPTB.x, WPTB.y, OVERFLY, 0])
 
 fp_test = []
@@ -98,7 +98,7 @@ fp_test.append([WPTC.waypoint_identifier,WPTC.x,WPTC.y,FLYBY,UNDEFINED_Z])
 
 #### DEFINITION DES PARAMETRES COST INDEX ET VEND
 CI = 40
-V_vent = 30 # en knots
+V_vent = 0 # en knots
 Dir_Vent = 120 #degrés d'ou il vient
 V_Init = 100 ## en knots IAS
 Z_Init = 0 ## en ft
@@ -106,5 +106,5 @@ Gamma_Init = 0 ## en degrés
 trans_alt = 5000 ## en ft
 VMAXFL100 = 250 ## en knots
 wind = [c.knots_to_ms(V_vent), c.deg_to_rad(Dir_Vent)+math.pi]
-flight_plan = fptdpG
-#flight_plan = f.points
+#flight_plan = fptdpG
+flight_plan = fp_test_dirto
