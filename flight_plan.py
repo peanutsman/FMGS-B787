@@ -74,8 +74,12 @@ WPTC = Waypoint(find_waypoint("WPTC")[ID_DB],find_waypoint("WPTC")[X_DB],find_wa
 #indice :      [0,                    1, 2, 3,            4]
 fptdpG =[] ##Flight Plan Tour De Piste Gauche
 fptdpG.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,0])
-fptdpG.append([ESUME.waypoint_identifier,ESUME.x,ESUME.y,FLYBY,UNDEFINED_Z])
+fptdpG.append([Seuil2.waypoint_identifier,Seuil2.x,Seuil2.y,OVERFLY,10])
+fptdpG.append([ESUME.waypoint_identifier,ESUME.x,ESUME.y,FLYBY,500])
 fptdpG.append([WPT1.waypoint_identifier,WPT1.x,WPT1.y,FLYBY,UNDEFINED_Z])
+fptdpG.append([WPT2.waypoint_identifier,WPT2.x,WPT2.y,FLYBY,UNDEFINED_Z])
+fptdpG.append([WPT3.waypoint_identifier,WPT3.x,WPT3.y,OVERFLY,UNDEFINED_Z])
+fptdpG.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,0])
 fptdpG.append([Seuil2.waypoint_identifier,Seuil2.x,Seuil2.y,OVERFLY,0])
 
 fp_test_dirto = []
@@ -102,7 +106,7 @@ fp_test1.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,0])
 
 #### DEFINITION DES PARAMETRES COST INDEX ET VEND
 CI = 0
-V_vent = 0 # en knots
+V_vent = 30 # en knots
 Dir_Vent = 120 #degrés d'ou il vient
 V_Init = 100 ## en knots IAS
 Z_Init = 0 ## en ft
@@ -110,5 +114,5 @@ Gamma_Init = 0 ## en degrés
 trans_alt = 5000 ## en ft
 VMAXFL100 = 250 ## en knots
 wind = [c.knots_to_ms(V_vent), c.deg_to_rad(Dir_Vent)+math.pi]
-flight_plan = fp_test_dirto
+flight_plan = fp_test1
 #flight_plan = f.points
