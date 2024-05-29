@@ -82,15 +82,37 @@ fptdpG.append([WPT3.waypoint_identifier,WPT3.x,WPT3.y,OVERFLY,UNDEFINED_Z])
 fptdpG.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,0])
 fptdpG.append([Seuil2.waypoint_identifier,Seuil2.x,Seuil2.y,OVERFLY,0])
 
+fp_test_dirto = []
+fp_test_dirto.append([Seuil1.waypoint_identifier, Seuil1.x, Seuil1.y, OVERFLY, 0])
+fp_test_dirto.append([Seuil2.waypoint_identifier, Seuil2.x, Seuil2.y, OVERFLY, 0])
+fp_test_dirto.append([WPTA.waypoint_identifier, WPTA.x, WPTA.y, FLYBY, 0])
+fp_test_dirto.append([WPTB.waypoint_identifier, WPTB.x, WPTB.y, OVERFLY, 0])
+
+fp_test = []
+fp_test.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,0])
+fp_test.append([WPTA.waypoint_identifier,WPTA.x,WPTA.y,FLYBY,UNDEFINED_Z])
+fp_test.append([WPTB.waypoint_identifier,WPTB.x,WPTB.y,FLYBY,UNDEFINED_Z])
+fp_test.append([WPTC.waypoint_identifier,WPTC.x,WPTC.y,FLYBY,UNDEFINED_Z])
+
+fp_test1 = []
+fp_test1.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,0])
+fp_test1.append([Seuil2.waypoint_identifier,Seuil2.x,Seuil2.y,OVERFLY,0])
+fp_test1.append([ESUME.waypoint_identifier,ESUME.x,ESUME.y,OVERFLY,UNDEFINED_Z])
+fp_test1.append([WPT1.waypoint_identifier,WPT1.x,WPT1.y,OVERFLY,UNDEFINED_Z])
+fp_test1.append([WPT2.waypoint_identifier,WPT2.x,WPT2.y,FLYBY,UNDEFINED_Z])
+fp_test1.append([WPT3.waypoint_identifier,WPT3.x,WPT3.y,OVERFLY,UNDEFINED_Z])
+fp_test1.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,0])
+
 
 #### DEFINITION DES PARAMETRES COST INDEX ET VEND
-CI = 150
+CI = 0
 V_vent = 30 # en knots
-Dir_Vent = 300 #degrés d'ou il vient
+Dir_Vent = 120 #degrés d'ou il vient
 V_Init = 100 ## en knots IAS
 Z_Init = 0 ## en ft
 Gamma_Init = 0 ## en degrés
 trans_alt = 5000 ## en ft
 VMAXFL100 = 250 ## en knots
 wind = [c.knots_to_ms(V_vent), c.deg_to_rad(Dir_Vent)+math.pi]
-flight_plan = fptdpG
+flight_plan = fp_test1
+#flight_plan = f.points

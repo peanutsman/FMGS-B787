@@ -197,7 +197,6 @@ def envoi_altitude(flight_plan :list):
 def envoi_axe(xy_waypoint1: list, xy_waypoint2 : list):
     cap_axe = axe_cap(xy_waypoint1, xy_waypoint2)
     IvySendMsg("AxeFlightPlan LegX=%s LegY=%s LegCap=%s" %(xy_waypoint1[X_SV],  xy_waypoint1[Y_SV], cap_axe))
-    #En dessous : ligne pour simuler sans les pilotes automatiques
     #IvySendMsg("InitStateVector x=%s y=%s z=%s Vp=%s fpa=0.0000 psi=%s phi=0.0000" %(StateVector[X_SV], StateVector[Y_SV], StateVector[ALT_SV], c.knots_to_ms(c.ias_to_tas(fp.V_Init,0)),cap_axe))
 
 #en entrée : flight plan (liste de waypoints, type,altitude)
@@ -300,7 +299,12 @@ if __name__ == "__main__":
 
     #Bus IVY
     app_name = "FMGS"
-    bus_Ivy = "127.255.255.255:2010"
+    #bus_Ivy = "127.255.255.255:2010"
+    #bus_Ivy = "172.20.10.15:2087"
+    #bus_Ivy = "255.255.248.0.2010"
+    #bus_Ivy = "172.20.10.255:2087"
+    #bus_Ivy_nonoelastico = "192.168.106.255:2087"
+    bus_Ivy = "224.255.255.255:2010"
 
     def initialisation_FMS (*a):
         IvySendMsg("FGSStatus=Connected")
