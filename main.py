@@ -113,7 +113,7 @@ def on_msg_offset(agent, *offset: tuple):
 #en sortie : envoi state vector, envoi vent, envoit déclinaison magnétique
 def init_simulation():
     ###ENVOI DU STATE VECTOR
-    envoi_state_vector()
+    envoi_init_state_vector()
     ###ENVOI DU VENT
     envoi_vent()
     ###ENVOIE DE LA DECLINAISON MAGNETIQUE
@@ -121,7 +121,7 @@ def init_simulation():
 
 #en entrée : N/A
 #en sortie : envoi du state vector initial sur le bus IVY
-def envoi_state_vector():
+def envoi_init_state_vector():
     x_premier_wpt = float(flight_plan_used[FIRST_WPT][X_FP])
     y_premier_wpt = float(flight_plan_used[FIRST_WPT][Y_FP])
     xy_premier_wpt = [x_premier_wpt, y_premier_wpt]
