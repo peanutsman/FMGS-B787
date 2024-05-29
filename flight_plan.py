@@ -106,5 +106,5 @@ Gamma_Init = 0 ## en degrés
 trans_alt = 5000 ## en ft
 VMAXFL100 = 250 ## en knots
 wind = [c.knots_to_ms(V_vent), c.deg_to_rad(Dir_Vent)+math.pi]
-#flight_plan = fptdpG
-flight_plan = fp_test_dirto
+flight_plan = fptdpG
+#flight_plan = fp_test_dirto

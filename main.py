@@ -110,8 +110,12 @@ def on_msg_offset(agent, *offset: tuple):
         offset_status = True
         offset_dist = c.nm_to_m(float(offset[0]))
         offset_side = offset[1]
-        print("%s%s OFFSET ACTIVATED" %(offset[0], offset_side))
+        if dirto_status == False:
+            print("\n%s%s OFFSET ACTIVATED" %(offset[0], offset_side))
+        else:
+            print("\n%s%s OFFSET WHEN DIRTO FINISHED" %(offset[0],offset_side))
     else:
+        print("Format de l'OFFSET incorrect")
         offset_status = False
 
 #en entrée : N/A
@@ -209,19 +213,18 @@ def envoi_axe(xy_waypoint1: list, xy_waypoint2 : list):
 def envoi_leg(flight_plan :list):
     global wpt_courant
     wpt_courant = sequencement_leg(flight_plan)
+    xy_avion = [float(StateVector[X_SV]), float(StateVector[Y_SV])]
     if offset_status == True and dirto_status == False:
         xy_wpt_courant = xy_offset(float(flight_plan[wpt_courant][X_FP]), float(flight_plan[wpt_courant][Y_FP]))
     else:
         xy_wpt_courant = [float(flight_plan[wpt_courant][X_FP]), float(flight_plan[wpt_courant][Y_FP])]
-    xy_avion = [float(StateVector[X_SV]), float(StateVector[Y_SV])]
     if dirto_status == True or wpt_courant == len(flight_plan)-1:
         envoi_axe(xy_avion, xy_wpt_courant)
+    elif offset_status == True and dirto_status == False:
+        xy_wpt_suivant = xy_offset(float(flight_plan[wpt_courant+1][X_FP]), float(flight_plan[wpt_courant+1][Y_FP]))
     else:
-        if offset_status == True and dirto_status == False:
-            xy_wpt_suivant = xy_offset(float(flight_plan[wpt_courant+1][X_FP]), float(flight_plan[wpt_courant+1][Y_FP]))
-        else:
-            xy_wpt_suivant = [float(flight_plan[wpt_courant+1][X_FP]), float(flight_plan[wpt_courant+1][Y_FP])]
-        envoi_axe(xy_wpt_courant, xy_wpt_suivant)
+        xy_wpt_suivant = [float(flight_plan[wpt_courant+1][X_FP]), float(flight_plan[wpt_courant+1][Y_FP])]
+    envoi_axe(xy_wpt_courant, xy_wpt_suivant)
 
 #en entrée : flight plan (liste de waypoints, type,altitude)
 #en sortie : index du waypoint à séquencer en fonction des angles de virage et de la position avion
