@@ -1,31 +1,40 @@
 from ivy . std_api import *
 from time import sleep
-
+####AVANT DE COMMENCER LE TEST : Remplacer le flight plan used par le fp_dirto dans flight_plan.py
  
 acquisition = False
 dirtostatus = False
+statev = None
+
+def onmsg_statevector(a, *sv):
+    global statev
+    statev = sv
 
 def onmsg_axe(a, *axe):
     global acquisition
     if acquisition == True and dirtostatus == True:
-        print("La position de l'avion est x=22000 y=6000\n")
-        print("L'axe entre l'avion et le waypoint est de 0°")
-        print("L'axe envoyée par le FMGS en mode DIRTO est : x=%s y=%s cap=%s" %axe[0], axe[1], axe[2])
+        print("La position de l'avion est x=%s y=%s" %(statev[0], statev[1]))
+        print("axe =", axe)
+        print("\nL'axe envoyée par le FMGS en mode DIRTO est : x=%s y=%s cap=%s" %(axe[0], axe[1], axe[2]))
         acquisition = False
     if acquisition == True:
-        print("L'axe envoyée est : x=%s y=%s cap=%s" %axe[0], axe[1], axe[2])
+        print("axe =", axe)
+        print("L'axe envoyée est : x=%s y=%s cap=%s\n" %(axe[0], axe[1], axe[2]))
+        acquisition = False
     
 def init_test():
    global acquisition
-   IvySendMsg("InitStateVector x=22000 y=6000 z=0 Vp=0.00 fpa=0.0000 psi=0 phi=0.0000")
+   IvySendMsg("InitStateVector x=0.0 y=0.0 z=0 Vp=10.00 fpa=0.0000 psi=0 phi=0.0000")
    sleep(2)
    acquisition = True
 
 def init_dirto():
     global acquisition, dirtostatus
     IvySendMsg("DirTo Wpt=WPTA")
+    print("\nDirTo initié vers le WPTA")
     sleep(2)
     acquisition = True
+    dirtostatus = True
 
 #######################################################################################################################
 #Bus IVY
@@ -39,7 +48,8 @@ def null(*args):
 IvyInit (app_name, "Ready to receive", null, null)
 IvyStart (bus_Ivy)
 sleep(1)
-IvyBindMsg(onmsg_axe, "AxeFlightPlan LegX=(.*) LegY=(.*) LegCap=(.%)")
+IvyBindMsg(onmsg_statevector, '^StateVector x=(.*) y=(.*) z=(.*) Vp=(.*) fpa=(.*) psi=(.*) phi=(.*)')
+IvyBindMsg(onmsg_axe, "AxeFlightPlan LegX=(.*) LegY=(.*) LegCap=(.*)")
 init_test()
 sleep(5)
 init_dirto()

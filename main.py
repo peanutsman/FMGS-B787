@@ -17,6 +17,8 @@ import ressources_rc
 NOMWPT_FP, X_FP, Y_FP, TYPE_WPT_FP = 0, 1, 2, 3
 #Index des éléments du state vector
 X_SV, Y_SV, ALT_SV, SPD_SV = 0, 1, 2, 3
+#Index des éléments dans les listes x,y
+X, Y = 0, 1
 #Index du waypoint dans le flight plan
 FIRST_WPT = 0
 #Index des données de vent
@@ -204,15 +206,15 @@ def envoi_axe(xy_waypoint1: list, xy_waypoint2 : list):
 def envoi_leg(flight_plan :list):
     global wpt_courant
     wpt_courant = sequencement_leg(flight_plan)
-    if offset_status and dirto_status == False:
+    if offset_status == True and dirto_status == False:
         xy_wpt_courant = xy_offset(float(flight_plan[wpt_courant][X_FP]), float(flight_plan[wpt_courant][Y_FP]))
     else:
         xy_wpt_courant = [float(flight_plan[wpt_courant][X_FP]), float(flight_plan[wpt_courant][Y_FP])]
     xy_avion = [float(StateVector[X_SV]), float(StateVector[Y_SV])]
-    if dirto_status or wpt_courant == len(flight_plan)-1:
+    if dirto_status == True or wpt_courant == len(flight_plan)-1:
         envoi_axe(xy_avion, xy_wpt_courant)
     else:
-        if offset_status and dirto_status == False:
+        if offset_status == True and dirto_status == False:
             xy_wpt_suivant = xy_offset(float(flight_plan[wpt_courant+1][X_FP]), float(flight_plan[wpt_courant+1][Y_FP]))
         else:
             xy_wpt_suivant = [float(flight_plan[wpt_courant+1][X_FP]), float(flight_plan[wpt_courant+1][Y_FP])]
@@ -229,7 +231,7 @@ def sequencement_leg(flight_plan :list[list]):
     if dirto_status == False and wpt_courant == len(flight_plan)-2:
         return wpt_courant
     ####DIR TO
-    if dirto_status:
+    if dirto_status == True:
         wpt_index_after_dirto = wpt_courant+1
         xy_wpt_dirto = [float(flight_plan[wpt_courant][X_FP]), float(flight_plan[wpt_courant][Y_FP])]
         xy_next_waypoint = [float(flight_plan[wpt_index_after_dirto][X_FP]), float(flight_plan[wpt_index_after_dirto][Y_FP])]
@@ -268,13 +270,13 @@ def distance_to_end_leg(xy_waypoint1, xy_waypoint2, xy_waypoint3):
 #en entrée : deux liste correspondant aux coord x,y waypoint
 #en sortie : angle nord GEO entre les deux WPTs 
 def axe_cap(xy_waypoint1, xy_waypoint2):
-    cap_leg = math.atan2(xy_waypoint2[Y_SV]-xy_waypoint1[Y_SV],xy_waypoint2[X_SV]-xy_waypoint1[X_SV]) #/rapport au Nord GEO
+    cap_leg = math.atan2(xy_waypoint2[Y]-xy_waypoint1[Y],xy_waypoint2[X]-xy_waypoint1[X]) #/rapport au Nord GEO
     return cap_leg
 
 #en entrée : x,y de deux waypoints
 #en sortie : distance entre les deux waypoints
 def distance_to_go(xy_waypoint1, xy_waypoint2):
-    distance = math.sqrt((xy_waypoint2[X_SV] - xy_waypoint1[X_SV])**2 + (xy_waypoint2[Y_SV] - xy_waypoint1[Y_SV])**2)
+    distance = math.sqrt((xy_waypoint2[X] - xy_waypoint1[X])**2 + (xy_waypoint2[Y] - xy_waypoint1[Y])**2)
     return distance
 
 #en entrée : x,y du waypoint courant
@@ -299,12 +301,8 @@ if __name__ == "__main__":
 
     #Bus IVY
     app_name = "FMGS"
-    #bus_Ivy = "127.255.255.255:2010"
-    #bus_Ivy = "172.20.10.15:2087"
-    #bus_Ivy = "255.255.248.0.2010"
-    #bus_Ivy = "172.20.10.255:2087"
-    #bus_Ivy_nonoelastico = "192.168.106.255:2087"
-    bus_Ivy = "224.255.255.255:2010"
+    bus_Ivy = "127.255.255.255:2010"
+    #bus_Ivy = "224.255.255.255:2010"
 
     def initialisation_FMS (*a):
         IvySendMsg("FGSStatus=Connected")
