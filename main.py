@@ -76,7 +76,10 @@ def on_msg_volets(agent, *statut_volet):
 #en sortie : changement du statut du train d'atterrissage (variable globale)
 def on_msg_landing_gear(agent, *statut_landing_gear):
     global landing_gear
-    landing_gear = int(statut_landing_gear[0])
+    if statut_landing_gear[0]=="False":
+        landing_gear = 0
+    else:
+        landing_gear = 1
     if landing_gear == 0:
         print("L/G GEAR DOWN")
     else:
@@ -130,12 +133,8 @@ def envoi_init_state_vector():
     xy_deuxieme_wpt = [float(flight_plan_used[FIRST_WPT+1][X_FP]), float(flight_plan_used[FIRST_WPT+1][Y_FP])]
     windspeed = fp.wind[V_VENT]
     QFU = axe_cap(xy_premier_wpt, xy_deuxieme_wpt)
-    #print("QFU: GEO",c.rad_to_deg(QFU))
-    #print(c.rad_to_deg(QFU),"QFU")
     derive =math.asin(windspeed*math.sin(QFU-c.deg_to_rad(fp.Dir_Vent))/(c.knots_to_ms(fp.V_Init)*math.cos(c.deg_to_rad(fp.Gamma_Init))))
-    #print("dérive:",c.rad_to_deg(derive))
     cap_vent_piste = QFU -  derive 
-    #print("cap vent piste:",c.rad_to_deg(cap_vent_piste))
     Z0 = c.feet_to_meters(fp.Z_Init)
     V0 = c.knots_to_ms(c.ias_to_tas(fp.V_Init, fp.Z_Init))
     IvySendMsg("InitStateVector x=%s y=%s z=%s Vp=%s fpa=0.0000 psi=%s phi=0.0000" %(str(x_premier_wpt), str(y_premier_wpt),Z0, V0, str(cap_vent_piste)))
@@ -179,12 +178,16 @@ def envoi_vitesse():
         else:
             ias = c.knots_to_ms(ias)
         IvySendMsg("Statut=Vc MachManaged=0 VcManaged=%s" %ias)
+        return
     ###CAS ou altitude au dessus de la trans alt
     if alt > TRANS_ALT_FT:
         mach = fp.cost_index_mach()
         if alt < FL100_FT and c.mach_to_tas(mach) > c.ias_to_tas(IASMAXFL100,alt):
             mach = c.tas_to_mach(c.ias_to_tas(IASMAXFL100, alt))
         IvySendMsg("Statut=Mach MachManaged=%s VcManaged=0" %mach)
+        return
+    IvySendMsg("Statut=Vc MachManaged=0 VcManaged=%s" %(fp.cost_index_ias()))
+    
 
 #en entrée : flight plan (liste de waypoints, type,altitude)
 #en sortie : envoi de l'altitude managée du wpt du début de leg sur le bus IVY
@@ -303,7 +306,7 @@ if __name__ == "__main__":
     app_name = "FMGS"
     bus_Ivy = "127.255.255.255:2010"
     #bus_Ivy = "224.255.255.255:2010"
-
+    bus_Ivy = "192.168.141.255:2087"
     def initialisation_FMS (*a):
         IvySendMsg("FGSStatus=Connected")
 
