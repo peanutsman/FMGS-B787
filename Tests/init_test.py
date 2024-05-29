@@ -13,7 +13,7 @@ class Test_init:
         if len(self.x) != len(self.y):
             raise ValueError("Les résultats et le temps ne sont pas en phase.")
         for item_x, item_y in zip(self.x, self.y):
-            self.test_file.write(f"A l'intant {item_x}, le résultat obtenu est : {item_y}")
+            self.test_file.write(f"A l'intant {item_x}, le résultat obtenu est : {item_y}\n")
         self.test_file.close()
 
     def show_graph_test_xy(self):
