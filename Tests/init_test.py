@@ -1,25 +1,30 @@
 import matplotlib.pyplot as plt
 from math import sqrt
 
+SUCCESS = 1
+
 class Test_init:
     def __init__(self, name):
         self.name = name
         self.x = []
         self.y = []
     
-    def create_test_file(self):
+    def create_test_file(self, success):
         self.file_name = "txt " +  self.name
         self.test_file = open(self.file_name, 'w')
         if len(self.x) != len(self.y):
             raise ValueError("Les résultats et le temps ne sont pas en phase.")
-        for item_x, item_y in zip(self.x, self.y):
-            self.test_file.write(f"A l'intant {item_x}, le résultat obtenu est : {item_y}\n")
+        if success == 0:
+            self.test_file.write("***Erreur de success***")
+        else:
+            for item_x, item_y in zip(self.x, self.y):
+                self.test_file.write(f"A {item_x}, le résultat obtenu est : {item_y}\n")
         self.test_file.close()
 
-    def show_graph_test_xy(self):
+    def show_graph_test_xy(self, x_label, y_label):
         plt.plot(self.y, self.x)
-        plt.xlabel("x")
-        plt.ylabel("y")
+        plt.xlabel(x_label)
+        plt.ylabel(y_label)
         plt.show()
 
 
@@ -57,18 +62,22 @@ class StateVector:
 
     def __format__(self) -> str:
         return self.__str__()
-
-class WayPoint:
-    def __init__(self,name, x, y, bool_fly, z):
-        self.name = name
+    
+class Point2D:
+    def __init__(self, x, y):
         self.x = x
         self.y = y
-        bool_fly = bool_fly
-        self.z = z
     
     def distance_horizontale(self, other):
         return sqrt((self.x - other.x)**2 + (self.y - other.y)**2)
     
+class WayPoint(Point2D):
+    def __init__(self, x, y, z, name, bool_fly):
+        super().__init__(x, y)
+        self.z = z
+        self.name = name
+        bool_fly = bool_fly
+
 def get_flightplan(path):
     fp = []
     with open(path, "r") as f:
