@@ -5,24 +5,25 @@ MMO = 0.90
 VMO_LG = 240
 MMO_LG = 240/600
 LGDOWN, LGUP = 0, 1
+FLAPS0, FLAPS5, FLAPS20, FLAPS30 = '0', '1', '2', '3'
 
-nz_max_volets = {'0': 2.5,
-                 '1': 2.3,
-                 '2': 1.8,
-                 '3': 1.5}
-nz_min_volets = {'0': -1.5,
-                 '1': -1.2,
-                 '2': -1.0,
-                 '3': -1.0}
-nx_max_volets = {'0': 0.5,
-                 '1': 0.5,
-                 '2': 0.3,
-                 '3': 0.25}
+nz_max_volets = {FLAPS0: 2.5,
+                 FLAPS5: 2.3,
+                 FLAPS20: 1.8,
+                 FLAPS30: 1.5}
+nz_min_volets = {FLAPS0: -1.5,
+                 FLAPS5: -1.2,
+                 FLAPS20: -1.0,
+                 FLAPS30: -1.0}
+nx_max_volets = {FLAPS0: 0.5,
+                 FLAPS5: 0.5,
+                 FLAPS20: 0.3,
+                 FLAPS30: 0.25}
 
-nx_min_volets = {'0': -0.8,
-                 '1': -0.7,
-                 '2': -0.6,
-                 '3': -0.5}
+nx_min_volets = {FLAPS0: -0.8,
+                 FLAPS5: -0.7,
+                 FLAPS20: -0.6,
+                 FLAPS30: -0.5}
 
 #en entrée : volets et train rentré ou sorti
 #en sortie : dictionnaire des performances de l'avion

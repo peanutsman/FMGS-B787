@@ -14,7 +14,7 @@ from mainwindow import MainView
 import ressources_rc
 
 #Index des paramètres des waypoint dans le flight plan
-NOMWPT_FP, X_FP, Y_FP, TYPE_WPT_FP = 0, 1, 2, 3
+NOMWPT_FP, X_FP, Y_FP, TYPE_WPT_FP,ALT_FP = 0, 1, 2, 3, 4
 #Index des éléments du state vector
 X_SV, Y_SV, ALT_SV, SPD_SV = 0, 1, 2, 3
 #Index des éléments dans les listes x,y
@@ -23,20 +23,21 @@ X, Y = 0, 1
 FIRST_WPT = 0
 #Index des données de vent
 V_VENT, DIR_VENT = 0, 1
-#Initialisation des variables globales
-t_minus_1 = 0
-StateVector, volets, landing_gear = [0, 0, 0, 0, 0, 0, 0], '0', 0
-dirto_status = False
-offset_status, offset_dist, offset_side = None, None, None
-epsilon_overfly = 200.0
-declinaison = perf.perfos_avion(volets,landing_gear,0)['MagneticDeclination']
-flight_plan_used, wpt_courant = fp.flight_plan, 0
 #Constantes
 FACTEUR = 2 #facteur de sécurité pour le epsilon_overfly 
 OVERFLY, FLYBY = 0, 1
 TRANS_ALT_FT = int(fp.trans_alt)
 IASMAXFL100, FL100_FT = fp.VMAXFL100, 10000
 LGDOWN, LGUP = 0, 1
+#Initialisation des variables globales
+t_minus_1 = 0
+StateVector, volets, landing_gear = [0, 0, 0, 0, 0, 0, 0], '0', LGDOWN
+dirto_status = False
+offset_status, offset_dist, offset_side = None, None, None
+epsilon_overfly = 200.0
+declinaison = perf.perfos_avion(volets,landing_gear,0)['MagneticDeclination']
+flight_plan_used, wpt_courant = fp.flight_plan, 0
+
 
 #en entrée : state vector sur le bus IVY
 #en sortie : acquisition du statevector en variable globale, envoi de la vitesse managée, envoi des legs, envoi de l'altitude managée, des perfos
@@ -194,7 +195,10 @@ def envoi_vitesse():
 #en entrée : flight plan (liste de waypoints, type,altitude)
 #en sortie : envoi de l'altitude managée du wpt du début de leg sur le bus IVY
 def envoi_altitude(flight_plan :list):
-    altitude = flight_plan[wpt_courant][TYPE_WPT_FP]
+    if wpt_courant == len(flight_plan)-1:
+        altitude = flight_plan[wpt_courant][ALT_FP]
+    else:
+        altitude = flight_plan[wpt_courant+1][ALT_FP]
     if altitude == fp.UNDEFINED_Z:
         altitude = StateVector[ALT_SV]
     IvySendMsg("ZcManaged=%s" %altitude)
