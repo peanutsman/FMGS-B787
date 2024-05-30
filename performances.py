@@ -28,23 +28,32 @@ nx_min_volets = {FLAPS0: -0.8,
 #en entrée : volets et train rentré ou sorti
 #en sortie : dictionnaire des performances de l'avion
 def perfos_avion(volets: str, landing_gear: int, alt=float):
-    red = 0.5*alt/10000 #plus l'altitude est grand, plus on réduit le nzmax
+    if alt in range(0, 12000):
+        red = 0.5*alt/10000 #plus l'altitude est grand, plus on réduit le nzmax
+    else:
+        red = 0.5
     if landing_gear==LGDOWN:
         nz_max = nz_max_volets[volets]-0.2-red
         nz_min = nz_min_volets[volets]+0.2+red
         nx_max = nx_max_volets[volets]-0.1-(red/4)
         nx_min = nx_min_volets[volets]+0.1+red
-        phimax = acos(1/nz_max)
         VNE= VMO_LG
         NEM = MMO_LG
+        if acos(1/nz_max) > c.deg_to_rad(30):
+            phimax = c.deg_to_rad(30)
+        else:
+            phimax = acos(1/nz_max)
     else:
         nz_max = nz_max_volets[volets]-red
         nz_min = nz_min_volets[volets]
         nx_max = nx_max_volets[volets]
         nx_min = nx_min_volets[volets]
-        phimax = acos(1/nz_max)
         VNE = VMO
         NEM = MMO
+        if acos(1/nz_max) > c.deg_to_rad(30):
+            phimax = c.deg_to_rad(30)
+        else:
+            phimax = acos(1/nz_max)
     perfos = {"NxMax": nx_max,
               "NxMin": nx_min,
               "NzMax": nz_max,

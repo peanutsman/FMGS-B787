@@ -67,19 +67,23 @@ WPT3 = Waypoint(find_waypoint("WPT3")[ID_DB],find_waypoint("WPT3")[X_DB],find_wa
 WPTA = Waypoint(find_waypoint("WPTA")[ID_DB],find_waypoint("WPTA")[X_DB],find_waypoint("WPTA")[Y_DB])
 WPTB = Waypoint(find_waypoint("WPTB")[ID_DB],find_waypoint("WPTB")[X_DB],find_waypoint("WPTB")[Y_DB])
 WPTC = Waypoint(find_waypoint("WPTC")[ID_DB],find_waypoint("WPTC")[X_DB],find_waypoint("WPTC")[Y_DB])
-
+ALEX = Waypoint(find_waypoint("ALEX")[ID_DB],find_waypoint("ALEX")[X_DB],find_waypoint("ALEX")[Y_DB])
+SULLY = Waypoint(find_waypoint("SULLY")[ID_DB],find_waypoint("SULLY")[X_DB],find_waypoint("SULLY")[Y_DB])
+MARTIN = Waypoint(find_waypoint("MARTIN")[ID_DB],find_waypoint("MARTIN")[X_DB],find_waypoint("MARTIN")[Y_DB])
+NORMAN = Waypoint(find_waypoint("NORMAN")[ID_DB],find_waypoint("NORMAN")[X_DB],find_waypoint("NORMAN")[Y_DB])
+WPT4 = Waypoint(find_waypoint("WPT4")[ID_DB],find_waypoint("WPT4")[X_DB],find_waypoint("WPT4")[Y_DB])
 
 ###DIFFERENTS FLIGHT PLANS
 #Flight plan : [waypoint_identifier, x, y, flyby/overfly, z]
 #indice :      [0,                    1, 2, 3,            4]
 fptdpG =[] ##Flight Plan Tour De Piste Gauche
 fptdpG.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,0])
-fptdpG.append([Seuil2.waypoint_identifier,Seuil2.x,Seuil2.y,OVERFLY,10])
-fptdpG.append([ESUME.waypoint_identifier,ESUME.x,ESUME.y,FLYBY,500])
+fptdpG.append([Seuil2.waypoint_identifier,Seuil2.x,Seuil2.y,OVERFLY,20])
+fptdpG.append([ESUME.waypoint_identifier,ESUME.x,ESUME.y,FLYBY,1000])
 fptdpG.append([WPT1.waypoint_identifier,WPT1.x,WPT1.y,FLYBY,UNDEFINED_Z])
 fptdpG.append([WPT2.waypoint_identifier,WPT2.x,WPT2.y,FLYBY,UNDEFINED_Z])
-fptdpG.append([WPT3.waypoint_identifier,WPT3.x,WPT3.y,OVERFLY,UNDEFINED_Z])
-fptdpG.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,0])
+fptdpG.append([WPT3.waypoint_identifier,WPT3.x,WPT3.y,FLYBY,UNDEFINED_Z])
+fptdpG.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,10])
 fptdpG.append([Seuil2.waypoint_identifier,Seuil2.x,Seuil2.y,OVERFLY,0])
 
 fp_test_dirto = []
@@ -95,16 +99,35 @@ fp_test.append([WPTA.waypoint_identifier,WPTA.x,WPTA.y,FLYBY,UNDEFINED_Z])
 fp_test.append([WPTB.waypoint_identifier,WPTB.x,WPTB.y,FLYBY,UNDEFINED_Z])
 fp_test.append([WPTC.waypoint_identifier,WPTC.x,WPTC.y,FLYBY,UNDEFINED_Z])
 
+new_fp = []
+new_fp.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,0])
+new_fp.append([Seuil2.waypoint_identifier,Seuil2.x,Seuil2.y,OVERFLY,20])
+new_fp.append([NORMAN.waypoint_identifier,NORMAN.x,NORMAN.y,FLYBY,1000])
+new_fp.append([ALEX.waypoint_identifier,ALEX.x,ALEX.y,FLYBY,UNDEFINED_Z])
+new_fp.append([MARTIN.waypoint_identifier,MARTIN.x,MARTIN.y,FLYBY,UNDEFINED_Z])
+new_fp.append([SULLY.waypoint_identifier,SULLY.x,SULLY.y,FLYBY,UNDEFINED_Z])
+new_fp.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,10])
+new_fp.append([Seuil2.waypoint_identifier,Seuil2.x,Seuil2.y,OVERFLY,0])
 
+bis = []
+bis.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,0])
+bis.append([Seuil2.waypoint_identifier,Seuil2.x,Seuil2.y,OVERFLY,20])
+bis.append([NORMAN.waypoint_identifier,NORMAN.x,NORMAN.y,FLYBY,1000])
+bis.append([ALEX.waypoint_identifier,ALEX.x,ALEX.y,FLYBY,UNDEFINED_Z])
+bis.append([MARTIN.waypoint_identifier,MARTIN.x,MARTIN.y,FLYBY,UNDEFINED_Z])
+bis.append([WPT4.waypoint_identifier,WPT4.x,WPT4.y,FLYBY,UNDEFINED_Z])
+bis.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,10])
+bis.append([Seuil2.waypoint_identifier,Seuil2.x,Seuil2.y,OVERFLY,0])
 #### DEFINITION DES PARAMETRES COST INDEX ET VEND
 CI = 40
 V_vent = 0 # en knots
 Dir_Vent = 120 #degrés d'ou il vient
 V_Init = 100 ## en knots IAS
-Z_Init = 0 ## en ft
+Z_Init = 1000 ## en ft
 Gamma_Init = 0 ## en degrés
 trans_alt = 5000 ## en ft
 VMAXFL100 = 250 ## en knots
 wind = [c.knots_to_ms(V_vent), c.deg_to_rad(Dir_Vent)+math.pi]
 flight_plan = fptdpG
+
 #flight_plan = fp_test_dirto
