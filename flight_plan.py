@@ -108,6 +108,12 @@ new_fp.append([MARTIN.waypoint_identifier,MARTIN.x,MARTIN.y,FLYBY,UNDEFINED_Z])
 new_fp.append([SULLY.waypoint_identifier,SULLY.x,SULLY.y,FLYBY,UNDEFINED_Z])
 new_fp.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,10])
 new_fp.append([Seuil2.waypoint_identifier,Seuil2.x,Seuil2.y,OVERFLY,0])
+fp_test_alt = []
+fp_test_alt.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,0])
+fp_test_alt.append([ESUME.waypoint_identifier,ESUME.x,ESUME.y,OVERFLY,500])
+fp_test_alt.append([WPT1.waypoint_identifier,WPT1.x,WPT1.y,OVERFLY,1524])
+fp_test_alt.append([WPT2.waypoint_identifier,WPT2.x,WPT2.y,OVERFLY,UNDEFINED_Z])
+
 
 bis = []
 bis.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,0])
