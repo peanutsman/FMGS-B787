@@ -4,6 +4,7 @@ VMO = 350
 MMO = 0.90
 VMO_LG = 240
 MMO_LG = 240/600
+LGDOWN, LGUP = 0, 1
 
 nz_max_volets = {'0': 2.5,
                  '1': 2.3,
@@ -26,11 +27,8 @@ nx_min_volets = {'0': -0.8,
 #en entrée : volets et train rentré ou sorti
 #en sortie : dictionnaire des performances de l'avion
 def perfos_avion(volets: str, landing_gear: int, alt=float):
-    if alt == 0:
-        red = 0
-    else:
-        red = 0.5*alt/10000 #plus l'altitude est grand, plus on réduit le nzmax
-    if landing_gear==0:
+    red = 0.5*alt/10000 #plus l'altitude est grand, plus on réduit le nzmax
+    if landing_gear==LGDOWN:
         nz_max = nz_max_volets[volets]-0.2-red
         nz_min = nz_min_volets[volets]+0.2+red
         nx_max = nx_max_volets[volets]-0.1-(red/4)

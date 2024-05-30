@@ -36,7 +36,7 @@ FACTEUR = 2 #facteur de sécurité pour le epsilon_overfly
 OVERFLY, FLYBY = 0, 1
 TRANS_ALT_FT = int(fp.trans_alt)
 IASMAXFL100, FL100_FT = fp.VMAXFL100, 10000
-    
+LGDOWN, LGUP = 0, 1
 
 #en entrée : state vector sur le bus IVY
 #en sortie : acquisition du statevector en variable globale, envoi de la vitesse managée, envoi des legs, envoi de l'altitude managée, des perfos
@@ -77,12 +77,10 @@ def on_msg_volets(agent, *statut_volet):
 def on_msg_landing_gear(agent, *statut_landing_gear):
     global landing_gear
     if statut_landing_gear[0]=="False":
-        landing_gear = 0
-    else:
-        landing_gear = 1
-    if landing_gear == 0:
+        landing_gear = LGDOWN
         print("L/G GEAR DOWN")
     else:
+        landing_gear = LGUP
         print("L/G GEAR UP")
     try:
         pos = landing_gear
@@ -298,6 +296,7 @@ def xy_offset(x_wpt, y_wpt):
         x = x_wpt - offset_dist*math.cos(90-cap)
         y = y_wpt + offset_dist*math.sin(90-cap)
     return [x, y]
+
 #######################################################################################################################
 
 if __name__ == "__main__":
@@ -328,4 +327,4 @@ if __name__ == "__main__":
     IvyBindMsg(on_msg_offset, '^OffSet=(.*) Side=(.*)')
     sys.exit(app.exec_())
 
-    #######################################################################################################################
+#######################################################################################################################
