@@ -310,9 +310,9 @@ if __name__ == "__main__":
 
     #Bus IVY
     app_name = "FMGS"
-    bus_Ivy = "127.255.255.255:2010"
-    #bus_Ivy = "224.255.255.255:2010"
-    bus_Ivy = "192.168.141.255:2087"
+    #bus_Ivy = "127.255.255.255:2010"
+    bus_Ivy = "224.255.255.255:2010"
+    #bus_Ivy = "192.168.141.255:2087"
     def initialisation_FMS (*a):
         IvySendMsg("FGSStatus=Connected")
 

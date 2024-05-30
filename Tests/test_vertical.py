@@ -8,9 +8,9 @@ import matplotlib.pyplot as plt
 
 SUCCESS = 1
 NOMBRE_DE_CAS = 0
-FLIGHTPLAN_PATH = ""
+FLIGHTPLAN_PATH = "local_flightplan.txt"
 time = []
-counter = 0
+
 
 def initialisation_FMS (*a):
     IvySendMsg("FGS_test_Status=Connected")
@@ -29,7 +29,7 @@ def on_msg_Time(agent, *data):
 def plt_flightplan(flightplan):
     fp = flightplan
     for waypoint in fp:
-        if waypoint.z>0:
+        if int(waypoint.z) > 0:
             plt.plot(waypoint.x, waypoint.y, marker='D', color='blue')
             plt.annotate(f"{waypoint.z}m", (waypoint.x, waypoint.y))
         else:
@@ -51,6 +51,7 @@ def vertical(position_avion):
 def on_msg_StateVector(agent, *data):
     global StateVector
     StateVector = data
+    counter = 0
     if counter == 0:
         flightplan = ini.get_flightplan(FLIGHTPLAN_PATH)
         plt_flightplan(flightplan)
@@ -95,7 +96,7 @@ def on_msg_StateVector(agent, *data):
 
 def on_msg_ZcManaged(agent, *data):
     global ZcM
-    ZcM = float(data)
+    ZcM = float(data[0])
     plt.annotate(f"Z Consigne : {ZcM}")
 
 def stop_ivy_bus():
@@ -107,7 +108,7 @@ test_vertical = ini.Test("Test des consignes d'altitude", -1)
 
 ##########################################################################
 IvyInit ("Test_Zc", " Ready ", 0 , initialisation_FMS, on_die_fms)
-IvyStart ("127.255.255.255:2010")
+IvyStart ("224.255.255.255:2010")
 IvyBindMsg (on_msg_Time, '^Time t=(.*)')
 ##########################################################################
 

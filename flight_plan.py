@@ -95,6 +95,12 @@ fp_test.append([WPTA.waypoint_identifier,WPTA.x,WPTA.y,FLYBY,UNDEFINED_Z])
 fp_test.append([WPTB.waypoint_identifier,WPTB.x,WPTB.y,FLYBY,UNDEFINED_Z])
 fp_test.append([WPTC.waypoint_identifier,WPTC.x,WPTC.y,FLYBY,UNDEFINED_Z])
 
+fp_test_alt = []
+fp_test_alt.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,0])
+fp_test_alt.append([ESUME.waypoint_identifier,ESUME.x,ESUME.y,OVERFLY,500])
+fp_test_alt.append([WPT1.waypoint_identifier,WPT1.x,WPT1.y,OVERFLY,1524])
+fp_test_alt.append([WPT2.waypoint_identifier,WPT2.x,WPT2.y,OVERFLY,UNDEFINED_Z])
+
 
 #### DEFINITION DES PARAMETRES COST INDEX ET VEND
 CI = 40
@@ -106,5 +112,6 @@ Gamma_Init = 0 ## en degrés
 trans_alt = 5000 ## en ft
 VMAXFL100 = 250 ## en knots
 wind = [c.knots_to_ms(V_vent), c.deg_to_rad(Dir_Vent)+math.pi]
-flight_plan = fptdpG
+#flight_plan = fptdpG
 #flight_plan = fp_test_dirto
+flight_plan = fp_test_alt
