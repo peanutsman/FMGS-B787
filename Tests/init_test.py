@@ -65,8 +65,8 @@ class StateVector:
     
 class Point2D:
     def __init__(self, x, y):
-        self.x = x
-        self.y = y
+        self.x = float(x)
+        self.y = float(y)
     
     def distance_horizontale(self, other):
         return sqrt((self.x - other.x)**2 + (self.y - other.y)**2)
@@ -74,7 +74,7 @@ class Point2D:
 class WayPoint(Point2D):
     def __init__(self, x, y, z, name, bool_fly):
         super().__init__(x, y)
-        self.z = z
+        self.z = float(z)
         self.name = name
         bool_fly = bool_fly
 
