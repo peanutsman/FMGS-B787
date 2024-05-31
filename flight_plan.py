@@ -42,7 +42,7 @@ def find_waypoint_index_in_fp(waypoint_identifier: str, flight_plan: list):
 def cost_index_ias():
     if CI in range(0, 100):
         return ((VMO_IAS-V2_IAS)/100)*CI + V2_IAS
-    if CI > 100:
+    if CI >= 100:
         return VMO_IAS
 
 #en entrée : N/A
@@ -72,6 +72,7 @@ SULLY = Waypoint(find_waypoint("SULLY")[ID_DB],find_waypoint("SULLY")[X_DB],find
 MARTIN = Waypoint(find_waypoint("MARTIN")[ID_DB],find_waypoint("MARTIN")[X_DB],find_waypoint("MARTIN")[Y_DB])
 NORMAN = Waypoint(find_waypoint("NORMAN")[ID_DB],find_waypoint("NORMAN")[X_DB],find_waypoint("NORMAN")[Y_DB])
 WPT4 = Waypoint(find_waypoint("WPT4")[ID_DB],find_waypoint("WPT4")[X_DB],find_waypoint("WPT4")[Y_DB])
+FARWEST = Waypoint(find_waypoint("FARWEST")[ID_DB],find_waypoint("FARWEST")[X_DB],find_waypoint("FARWEST")[Y_DB])
 
 ###DIFFERENTS FLIGHT PLANS
 #Flight plan : [waypoint_identifier, x, y, flyby/overfly, z]
@@ -106,8 +107,10 @@ new_fp.append([NORMAN.waypoint_identifier,NORMAN.x,NORMAN.y,FLYBY,1000])
 new_fp.append([ALEX.waypoint_identifier,ALEX.x,ALEX.y,FLYBY,UNDEFINED_Z])
 new_fp.append([MARTIN.waypoint_identifier,MARTIN.x,MARTIN.y,FLYBY,UNDEFINED_Z])
 new_fp.append([SULLY.waypoint_identifier,SULLY.x,SULLY.y,FLYBY,UNDEFINED_Z])
-new_fp.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,10])
+new_fp.append([WPT3.waypoint_identifier,WPT3.x,WPT3.y,OVERFLY,UNDEFINED_Z])
+new_fp.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,500])
 new_fp.append([Seuil2.waypoint_identifier,Seuil2.x,Seuil2.y,OVERFLY,0])
+
 fp_test_alt = []
 fp_test_alt.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,0])
 fp_test_alt.append([ESUME.waypoint_identifier,ESUME.x,ESUME.y,OVERFLY,500])
@@ -118,22 +121,22 @@ fp_test_alt.append([WPT2.waypoint_identifier,WPT2.x,WPT2.y,OVERFLY,UNDEFINED_Z])
 bis = []
 bis.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,0])
 bis.append([Seuil2.waypoint_identifier,Seuil2.x,Seuil2.y,OVERFLY,20])
-bis.append([NORMAN.waypoint_identifier,NORMAN.x,NORMAN.y,FLYBY,1000])
+bis.append([FARWEST.waypoint_identifier,FARWEST.x,FARWEST.y,FLYBY,6000])
 bis.append([ALEX.waypoint_identifier,ALEX.x,ALEX.y,FLYBY,UNDEFINED_Z])
 bis.append([MARTIN.waypoint_identifier,MARTIN.x,MARTIN.y,FLYBY,UNDEFINED_Z])
-bis.append([WPT4.waypoint_identifier,WPT4.x,WPT4.y,FLYBY,UNDEFINED_Z])
+bis.append([SULLY.waypoint_identifier,SULLY.x,SULLY.y,FLYBY,UNDEFINED_Z])
 bis.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,10])
 bis.append([Seuil2.waypoint_identifier,Seuil2.x,Seuil2.y,OVERFLY,0])
 #### DEFINITION DES PARAMETRES COST INDEX ET VEND
-CI = 40
+CI = 0
 V_vent = 0 # en knots
 Dir_Vent = 120 #degrés d'ou il vient
 V_Init = 100 ## en knots IAS
-Z_Init = 1000 ## en ft
+Z_Init = 0 ## en ft
 Gamma_Init = 0 ## en degrés
 trans_alt = 5000 ## en ft
 VMAXFL100 = 250 ## en knots
 wind = [c.knots_to_ms(V_vent), c.deg_to_rad(Dir_Vent)+math.pi]
-flight_plan = fptdpG
+flight_plan = new_fp
 
 #flight_plan = fp_test_dirto

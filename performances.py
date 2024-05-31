@@ -28,7 +28,7 @@ nx_min_volets = {FLAPS0: -0.8,
 #en entrée : volets et train rentré ou sorti
 #en sortie : dictionnaire des performances de l'avion
 def perfos_avion(volets: str, landing_gear: int, alt=float):
-    if alt in range(0, 12000):
+    if int(alt) in range(0, 12000):
         red = 0.5*alt/10000 #plus l'altitude est grand, plus on réduit le nzmax
     else:
         red = 0.5

@@ -16,12 +16,12 @@ miniYoke = MiniYoke(fcc, fmgs, flightModel, alphaFilter=0.1)
 running = True
 
 def init():
-    while not miniYoke.begin() :
-        pass
+    #while not miniYoke.begin() :
+        #pass
 
-    global yokeThread
-    yokeThread = threading.Thread(target=miniYoke.listener)
-    yokeThread.start()
+    #global yokeThread
+    #yokeThread = threading.Thread(target=miniYoke.listener)
+    #yokeThread.start()
 
     # Bind avi bus msg here
     aviBus.bindMsg(apLat.parser, apLat.regex)
