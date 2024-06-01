@@ -37,7 +37,8 @@ offset_status, offset_dist, offset_side = None, None, None
 epsilon_overfly = 200.0
 declinaison = perf.perfos_avion(volets,landing_gear,0)['MagneticDeclination']
 flight_plan_used, wpt_courant = fp.flight_plan, 0
-old_distance = None
+old_distance, compteur = None, 0
+
 
 #en entrée : state vector sur le bus IVY
 #en sortie : acquisition du statevector en variable globale, envoi de la vitesse managée, envoi des legs, envoi de l'altitude managée, des perfos
@@ -248,7 +249,7 @@ def envoi_leg(flight_plan :list):
 #en entrée : flight plan (liste de waypoints, type,altitude)
 #en sortie : index du waypoint à séquencer en fonction des angles de virage et de la position avion
 def sequencement_leg(flight_plan :list[list]):
-    global dirto_status, wpt_courant, old_distance
+    global dirto_status, wpt_courant, old_distance, compteur
     xy_avion = [float(StateVector[X_SV]), float(StateVector[Y_SV])]
     ###SI dernier leg OU si Wpt_courant = le dernier WPT du PDV --> envoi du dernier leg
     if wpt_courant == len(flight_plan)-1:
@@ -277,11 +278,13 @@ def sequencement_leg(flight_plan :list[list]):
     xy_wpt_suivant = [float(flight_plan[wpt_courant+2][X_FP]), float(flight_plan[wpt_courant+2][Y_FP])]
     distance = distance_to_go(xy_wpt, xy_avion)
     #print("OLD DIST", old_distance)
-    if old_distance :   #on regarde si on s'éloigne du wpt, si oui on séquence le wpt suivant (cas ou on est passé à côté du rayon de séquencement)
+    if old_distance :   #on regarde si on s'éloigne du wpt, si oui au bout de 8s on séquence le wpt suivant (cas ou on est passé à côté du rayon de séquencement)
         if distance > old_distance:
+            compteur+=1
+        if compteur > 8:
             old_distance = None
+            compteur=0
             return wpt_courant+1
-    
     #print("new old disstance",distance)
     old_distance = distance
     if flight_plan[wpt_courant+1][TYPE_WPT_FP] == FLYBY:
@@ -289,12 +292,14 @@ def sequencement_leg(flight_plan :list[list]):
         if distance < distance_to_end_leg(xy_previous_wpt, xy_wpt, xy_wpt_suivant):
             print("\n\n\nSequencement %s \n\n" %(flight_plan[wpt_courant+1][NOMWPT_FP]))
             old_distance = None
+            compteur=0
             return wpt_courant+1 #on change de leg car on arrive dans la condition flyby
     elif flight_plan[wpt_courant+1][TYPE_WPT_FP] == OVERFLY:
         #print("\nOVERFLY vers le waypoint %s distance avion et wpt" %(flight_plan[wpt_courant+1][NOMWPT_FP]), distance," distance dans laquelle séquencer", FACTEUR*epsilon_overfly)
         if distance < FACTEUR*epsilon_overfly:
             print("\n\n\nSequencement %s\n\n" %(flight_plan[wpt_courant+1][NOMWPT_FP]))
             old_distance = None
+            compteur=0
             return wpt_courant+1 #on change de leg car on arrive dans la condition flyover
     return wpt_courant ## --> dans le cas ou on continue sur le leg actuel
 
@@ -312,7 +317,8 @@ def distance_to_end_leg(xy_waypoint1, xy_waypoint2, xy_waypoint3):
     distance_virage = rayon * math.tan(delta_cap_wpt3_wpt1/2)
     #print("distance virage",distance_virage)
     distance_virage = math.sqrt(distance_virage**2)
-
+    if distance_virage < epsilon_overfly:
+        return epsilon_overfly
     return distance_virage
 
 #en entrée : deux liste correspondant aux coord x,y waypoint
