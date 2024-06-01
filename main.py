@@ -121,13 +121,14 @@ def on_msg_offset(agent, *offset: tuple):
 #en entrée : N/A
 #en sortie : envoi state vector, envoi vent, envoit déclinaison magnétique
 def init_simulation():
-    global wpt_courant, t_minus_1, epsilon_overfly, landing_gear, dirto_status, offset_status, volets, StateVector
+    global wpt_courant, t_minus_1, epsilon_overfly, landing_gear, dirto_status, offset_status, volets, StateVector, compteur, old_distance
     wpt_courant = 0
     t_minus_1 = 0
     StateVector, volets, landing_gear = [0, 0, 0, 0, 0, 0, 0], '0', LGDOWN
     dirto_status = False
     offset_status = None
     epsilon_overfly = 200.0
+    compteur, old_distance = 0, None
     ###ENVOI DU STATE VECTOR
     envoi_init_state_vector()
     ###ENVOI DU VENT
