@@ -37,7 +37,6 @@ offset_status, offset_dist, offset_side = None, None, None
 epsilon_overfly = 200.0
 declinaison = perf.perfos_avion(volets,landing_gear,0)['MagneticDeclination']
 flight_plan_used, wpt_courant = fp.flight_plan, 0
-old_distance, compteur = None, 0
 
 
 #en entrée : state vector sur le bus IVY
@@ -121,14 +120,13 @@ def on_msg_offset(agent, *offset: tuple):
 #en entrée : N/A
 #en sortie : envoi state vector, envoi vent, envoit déclinaison magnétique
 def init_simulation():
-    global wpt_courant, t_minus_1, epsilon_overfly, landing_gear, dirto_status, offset_status, volets, StateVector, compteur, old_distance
+    global wpt_courant, t_minus_1, epsilon_overfly, landing_gear, dirto_status, offset_status, volets, StateVector
     wpt_courant = 0
     t_minus_1 = 0
     StateVector, volets, landing_gear = [0, 0, 0, 0, 0, 0, 0], '0', LGDOWN
     dirto_status = False
     offset_status = None
     epsilon_overfly = 200.0
-    compteur, old_distance = 0, None
     ###ENVOI DU STATE VECTOR
     envoi_init_state_vector()
     ###ENVOI DU VENT
@@ -149,7 +147,7 @@ def envoi_init_state_vector():
     cap_vent_piste = QFU -  derive 
     Z0 = c.feet_to_meters(fp.Z_Init)
     V0 = c.knots_to_ms(c.ias_to_tas(fp.V_Init, fp.Z_Init))
-    #print("V0",V0)
+    print("V0",V0)
     IvySendMsg("InitStateVector x=%s y=%s z=%s Vp=%s fpa=0.0000 psi=%s phi=0.0000" %(str(x_premier_wpt), str(y_premier_wpt),Z0, V0, str(cap_vent_piste)))
 
 #en entrée : N/A
@@ -184,11 +182,11 @@ def envoi_perfo():
 #en sortie : envoi de la vitesse/mach managée sur le bus IVY
 def envoi_vitesse():
     alt = c.meters_to_feet(float(StateVector[ALT_SV]))
-    #print("Altitude en ft",alt)
+    print("Altitude en ft",alt)
     ###IAS ou altitude sous la trans alt
     if int(alt) in range(0,TRANS_ALT_FT):
         ias = fp.cost_index_ias()
-        #print("ias en knots",ias)
+        print("ias en knots",ias)
         if ias > IASMAXFL100 and alt < FL100_FT:
             ias = c.knots_to_ms(IASMAXFL100)
         else:
@@ -235,22 +233,22 @@ def envoi_leg(flight_plan :list):
         xy_wpt_courant = xy_offset(float(flight_plan[wpt_courant][X_FP]), float(flight_plan[wpt_courant][Y_FP]))
     else:
         xy_wpt_courant = [float(flight_plan[wpt_courant][X_FP]), float(flight_plan[wpt_courant][Y_FP])]
-        #print("Waypoint courant ",flight_plan[wpt_courant][NOMWPT_FP],xy_wpt_courant)
+        print("Waypoint courant ",flight_plan[wpt_courant][NOMWPT_FP],xy_wpt_courant)
     if dirto_status == True or wpt_courant == len(flight_plan)-1:
-        #print("envoie axe car dirto")
+        print("envoie axe car dirto")
         envoi_axe(xy_avion, xy_wpt_courant)
         return
     elif offset_status == True and dirto_status == False:
         xy_wpt_suivant = xy_offset(float(flight_plan[wpt_courant+1][X_FP]), float(flight_plan[wpt_courant+1][Y_FP]))
     else:
         xy_wpt_suivant = [float(flight_plan[wpt_courant+1][X_FP]), float(flight_plan[wpt_courant+1][Y_FP])]
-    #print("envoi axe normal entre ",xy_wpt_courant, xy_wpt_suivant)
+    print("envoi axe normal entre ",xy_wpt_courant, xy_wpt_suivant)
     envoi_axe(xy_wpt_courant, xy_wpt_suivant)
 
 #en entrée : flight plan (liste de waypoints, type,altitude)
 #en sortie : index du waypoint à séquencer en fonction des angles de virage et de la position avion
 def sequencement_leg(flight_plan :list[list]):
-    global dirto_status, wpt_courant, old_distance, compteur
+    global dirto_status, wpt_courant
     xy_avion = [float(StateVector[X_SV]), float(StateVector[Y_SV])]
     ###SI dernier leg OU si Wpt_courant = le dernier WPT du PDV --> envoi du dernier leg
     if wpt_courant == len(flight_plan)-1:
@@ -265,12 +263,14 @@ def sequencement_leg(flight_plan :list[list]):
         if flight_plan[wpt_courant][TYPE_WPT_FP] == OVERFLY:
             if distance_to_go(xy_avion, xy_wpt_dirto) < FACTEUR*epsilon_overfly:
                 dirto_status = False
-                print("DIRTO FINISHED within distance epsilon", epsilon_overfly)
+                print("\n\nDIRTO FINISHED within distance epsilon", epsilon_overfly)
+                print("Sequencement %s" %(flight_plan[wpt_courant][NOMWPT_FP]))
                 return wpt_courant
         elif flight_plan[wpt_courant][TYPE_WPT_FP] == FLYBY:
             if distance_to_go(xy_avion, xy_wpt_dirto) < distance_to_end_leg(xy_avion, xy_wpt_dirto, xy_next_waypoint):
                 dirto_status = False
-                print("DIRTO FINISHED within distance", distance_to_end_leg(xy_avion, xy_wpt_dirto, xy_next_waypoint))
+                print("\n\nDIRTO FINISHED within distance", distance_to_end_leg(xy_avion, xy_wpt_dirto, xy_next_waypoint))
+                print("Sequencement %s" %(flight_plan[wpt_courant][NOMWPT_FP]))
                 return wpt_courant
         return wpt_courant
     ####SEQUENCEMENT LEGS
@@ -278,29 +278,15 @@ def sequencement_leg(flight_plan :list[list]):
     xy_previous_wpt = [float(flight_plan[wpt_courant][X_FP]), float(flight_plan[wpt_courant][Y_FP])]
     xy_wpt_suivant = [float(flight_plan[wpt_courant+2][X_FP]), float(flight_plan[wpt_courant+2][Y_FP])]
     distance = distance_to_go(xy_wpt, xy_avion)
-    #print("OLD DIST", old_distance)
-    if old_distance :   #on regarde si on s'éloigne du wpt, si oui au bout de 8s on séquence le wpt suivant (cas ou on est passé à côté du rayon de séquencement)
-        if distance > old_distance:
-            compteur+=1
-        if compteur > 8:
-            old_distance = None
-            compteur=0
-            return wpt_courant+1
-    #print("new old disstance",distance)
-    old_distance = distance
     if flight_plan[wpt_courant+1][TYPE_WPT_FP] == FLYBY:
-        #print("\nFLYBY vers le waypoint %s distance avion et wpt" %(flight_plan[wpt_courant+1][NOMWPT_FP]), distance," distance dans laquelle séquencer", distance_to_end_leg(xy_previous_wpt, xy_wpt, xy_wpt_suivant))
+        print("\nFLYBY vers le waypoint %s distance avion et wpt" %(flight_plan[wpt_courant+1][NOMWPT_FP]), distance," distance dans laquelle séquencer", distance_to_end_leg(xy_previous_wpt, xy_wpt, xy_wpt_suivant))
         if distance < distance_to_end_leg(xy_previous_wpt, xy_wpt, xy_wpt_suivant):
-            print("\n\n\nSequencement %s \n\n" %(flight_plan[wpt_courant+1][NOMWPT_FP]))
-            old_distance = None
-            compteur=0
+            print("\n\nSequencement %s" %(flight_plan[wpt_courant+1][NOMWPT_FP]))
             return wpt_courant+1 #on change de leg car on arrive dans la condition flyby
     elif flight_plan[wpt_courant+1][TYPE_WPT_FP] == OVERFLY:
-        #print("\nOVERFLY vers le waypoint %s distance avion et wpt" %(flight_plan[wpt_courant+1][NOMWPT_FP]), distance," distance dans laquelle séquencer", FACTEUR*epsilon_overfly)
+        print("\nOVERFLY vers le waypoint %s distance avion et wpt" %(flight_plan[wpt_courant+1][NOMWPT_FP]), distance," distance dans laquelle séquencer", FACTEUR*epsilon_overfly)
         if distance < FACTEUR*epsilon_overfly:
-            print("\n\n\nSequencement %s\n\n" %(flight_plan[wpt_courant+1][NOMWPT_FP]))
-            old_distance = None
-            compteur=0
+            print("\n\nSequencement %s" %(flight_plan[wpt_courant+1][NOMWPT_FP]))
             return wpt_courant+1 #on change de leg car on arrive dans la condition flyover
     return wpt_courant ## --> dans le cas ou on continue sur le leg actuel
 
@@ -308,15 +294,15 @@ def sequencement_leg(flight_plan :list[list]):
 #en sortie : distance à partir de laquelle il faut séquencer le prochain wpt du PDV
 def distance_to_end_leg(xy_waypoint1, xy_waypoint2, xy_waypoint3):
     delta_cap_wpt3_wpt1 = axe_cap(xy_waypoint2, xy_waypoint3) - axe_cap(xy_waypoint1, xy_waypoint2)
-    #print("delta cap ",c.rad_to_deg(delta_cap_wpt3_wpt1))
+    print("delta cap ",c.rad_to_deg(delta_cap_wpt3_wpt1))
     vitesse = float(StateVector[SPD_SV]) ##convertir en m/s la string du state vector
-    #print("vitesse en m/s",vitesse)
-    #print("tan de phi",math.tan(perf.perfos_avion(volets,landing_gear,float(StateVector[ALT_SV]))['PhiMaxAutomatique'])) #vérifier que la valeur est correcte
+    print("vitesse en m/s",vitesse)
+    print("tan de phi",math.tan(perf.perfos_avion(volets,landing_gear,float(StateVector[ALT_SV]))['PhiMaxAutomatique'])) #vérifier que la valeur est correcte
     rayon = vitesse**2/(g*math.tan(perf.perfos_avion(volets,landing_gear,float(StateVector[ALT_SV]))['PhiMaxAutomatique']))
-    #print("rayon",rayon)
-    #print("tan de delta cap",math.tan(delta_cap_wpt3_wpt1/2))
+    print("rayon",rayon)
+    print("tan de delta cap",math.tan(delta_cap_wpt3_wpt1/2))
     distance_virage = rayon * math.tan(delta_cap_wpt3_wpt1/2)
-    #print("distance virage",distance_virage)
+    print("distance virage",distance_virage)
     distance_virage = math.sqrt(distance_virage**2)
     if distance_virage < epsilon_overfly:
         return epsilon_overfly
