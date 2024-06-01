@@ -58,8 +58,8 @@ def cost_index_mach():
 
 ####AJOUT DES WAYPOINTS
 ####Class waypoint : waypoint_identifier, x, y
-Seuil1 = Waypoint(find_waypoint("01L")[ID_DB],find_waypoint("01L")[X_DB],find_waypoint("01L")[Y_DB])
-Seuil2 = Waypoint(find_waypoint("19R")[ID_DB],find_waypoint("19R")[X_DB],find_waypoint("19R")[Y_DB])
+SEUIL1 = Waypoint(find_waypoint("01L")[ID_DB],find_waypoint("01L")[X_DB],find_waypoint("01L")[Y_DB])
+SEUIL2 = Waypoint(find_waypoint("19R")[ID_DB],find_waypoint("19R")[X_DB],find_waypoint("19R")[Y_DB])
 ESUME = Waypoint(find_waypoint("ESUME")[ID_DB],find_waypoint("ESUME")[X_DB],find_waypoint("ESUME")[Y_DB])
 WPT1 = Waypoint(find_waypoint("WPT1")[ID_DB],find_waypoint("WPT1")[X_DB],find_waypoint("WPT1")[Y_DB])
 WPT2 = Waypoint(find_waypoint("WPT2")[ID_DB],find_waypoint("WPT2")[X_DB],find_waypoint("WPT2")[Y_DB])
@@ -78,55 +78,55 @@ FARWEST = Waypoint(find_waypoint("FARWEST")[ID_DB],find_waypoint("FARWEST")[X_DB
 #Flight plan : [waypoint_identifier, x, y, flyby/overfly, z]
 #indice :      [0,                    1, 2, 3,            4]
 fptdpG =[] ##Flight Plan Tour De Piste Gauche
-fptdpG.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,0])
-fptdpG.append([Seuil2.waypoint_identifier,Seuil2.x,Seuil2.y,OVERFLY,20])
+fptdpG.append([SEUIL1.waypoint_identifier,SEUIL1.x,SEUIL1.y,OVERFLY,0])
+fptdpG.append([SEUIL2.waypoint_identifier,SEUIL2.x,SEUIL2.y,OVERFLY,20])
 fptdpG.append([ESUME.waypoint_identifier,ESUME.x,ESUME.y,FLYBY,1000])
 fptdpG.append([WPT1.waypoint_identifier,WPT1.x,WPT1.y,FLYBY,UNDEFINED_Z])
 fptdpG.append([WPT2.waypoint_identifier,WPT2.x,WPT2.y,FLYBY,UNDEFINED_Z])
 fptdpG.append([WPT3.waypoint_identifier,WPT3.x,WPT3.y,FLYBY,UNDEFINED_Z])
-fptdpG.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,10])
-fptdpG.append([Seuil2.waypoint_identifier,Seuil2.x,Seuil2.y,OVERFLY,0])
+fptdpG.append([SEUIL1.waypoint_identifier,SEUIL1.x,SEUIL1.y,OVERFLY,10])
+fptdpG.append([SEUIL2.waypoint_identifier,SEUIL2.x,SEUIL2.y,OVERFLY,0])
 
 fp_test_dirto = []
-fp_test_dirto.append([Seuil1.waypoint_identifier, Seuil1.x, Seuil1.y, OVERFLY, 0])
-fp_test_dirto.append([Seuil2.waypoint_identifier, Seuil2.x, Seuil2.y, OVERFLY, 0])
+fp_test_dirto.append([SEUIL1.waypoint_identifier, SEUIL1.x, SEUIL1.y, OVERFLY, 0])
+fp_test_dirto.append([SEUIL2.waypoint_identifier, SEUIL2.x, SEUIL2.y, OVERFLY, 0])
 fp_test_dirto.append([ESUME.waypoint_identifier, ESUME.x, ESUME.y, FLYBY,0])
 fp_test_dirto.append([WPTA.waypoint_identifier, WPTA.x, WPTA.y, FLYBY, 0])
 fp_test_dirto.append([WPTB.waypoint_identifier, WPTB.x, WPTB.y, OVERFLY, 0])
 
 fp_test = []
-fp_test.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,0])
+fp_test.append([SEUIL1.waypoint_identifier,SEUIL1.x,SEUIL1.y,OVERFLY,0])
 fp_test.append([WPTA.waypoint_identifier,WPTA.x,WPTA.y,FLYBY,UNDEFINED_Z])
 fp_test.append([WPTB.waypoint_identifier,WPTB.x,WPTB.y,FLYBY,UNDEFINED_Z])
 fp_test.append([WPTC.waypoint_identifier,WPTC.x,WPTC.y,FLYBY,UNDEFINED_Z])
 
 new_fp = []
-new_fp.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,0])
-new_fp.append([Seuil2.waypoint_identifier,Seuil2.x,Seuil2.y,OVERFLY,20])
+new_fp.append([SEUIL1.waypoint_identifier,SEUIL1.x,SEUIL1.y,OVERFLY,0])
+new_fp.append([SEUIL2.waypoint_identifier,SEUIL2.x,SEUIL2.y,OVERFLY,20])
 new_fp.append([NORMAN.waypoint_identifier,NORMAN.x,NORMAN.y,FLYBY,1000])
 new_fp.append([ALEX.waypoint_identifier,ALEX.x,ALEX.y,FLYBY,UNDEFINED_Z])
 new_fp.append([MARTIN.waypoint_identifier,MARTIN.x,MARTIN.y,FLYBY,UNDEFINED_Z])
 new_fp.append([SULLY.waypoint_identifier,SULLY.x,SULLY.y,FLYBY,UNDEFINED_Z])
 new_fp.append([WPT3.waypoint_identifier,WPT3.x,WPT3.y,OVERFLY,UNDEFINED_Z])
-new_fp.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,500])
-new_fp.append([Seuil2.waypoint_identifier,Seuil2.x,Seuil2.y,OVERFLY,0])
+new_fp.append([SEUIL1.waypoint_identifier,SEUIL1.x,SEUIL1.y,OVERFLY,500])
+new_fp.append([SEUIL2.waypoint_identifier,SEUIL2.x,SEUIL2.y,OVERFLY,0])
 
 fp_test_alt = []
-fp_test_alt.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,0])
+fp_test_alt.append([SEUIL1.waypoint_identifier,SEUIL1.x,SEUIL1.y,OVERFLY,0])
 fp_test_alt.append([ESUME.waypoint_identifier,ESUME.x,ESUME.y,OVERFLY,500])
 fp_test_alt.append([WPT1.waypoint_identifier,WPT1.x,WPT1.y,OVERFLY,1524])
 fp_test_alt.append([WPT2.waypoint_identifier,WPT2.x,WPT2.y,OVERFLY,UNDEFINED_Z])
 
 
 bis = []
-bis.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,0])
-bis.append([Seuil2.waypoint_identifier,Seuil2.x,Seuil2.y,OVERFLY,20])
+bis.append([SEUIL1.waypoint_identifier,SEUIL1.x,SEUIL1.y,OVERFLY,0])
+bis.append([SEUIL2.waypoint_identifier,SEUIL2.x,SEUIL2.y,OVERFLY,20])
 bis.append([FARWEST.waypoint_identifier,FARWEST.x,FARWEST.y,FLYBY,6000])
 bis.append([ALEX.waypoint_identifier,ALEX.x,ALEX.y,FLYBY,UNDEFINED_Z])
 bis.append([MARTIN.waypoint_identifier,MARTIN.x,MARTIN.y,FLYBY,UNDEFINED_Z])
 bis.append([SULLY.waypoint_identifier,SULLY.x,SULLY.y,FLYBY,UNDEFINED_Z])
-bis.append([Seuil1.waypoint_identifier,Seuil1.x,Seuil1.y,OVERFLY,10])
-bis.append([Seuil2.waypoint_identifier,Seuil2.x,Seuil2.y,OVERFLY,0])
+bis.append([SEUIL1.waypoint_identifier,SEUIL1.x,SEUIL1.y,OVERFLY,10])
+bis.append([SEUIL2.waypoint_identifier,SEUIL2.x,SEUIL2.y,OVERFLY,0])
 #### DEFINITION DES PARAMETRES COST INDEX ET VEND
 CI = 0
 V_vent = 0 # en knots
