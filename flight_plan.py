@@ -77,15 +77,15 @@ FARWEST = Waypoint(find_waypoint("FARWEST")[ID_DB],find_waypoint("FARWEST")[X_DB
 ###DIFFERENTS FLIGHT PLANS
 #Flight plan : [waypoint_identifier, x, y, flyby/overfly, z]
 #indice :      [0,                    1, 2, 3,            4]
-fptdpG =[] ##Flight Plan Tour De Piste Gauche
-fptdpG.append([SEUIL1.waypoint_identifier,SEUIL1.x,SEUIL1.y,OVERFLY,0])
-fptdpG.append([SEUIL2.waypoint_identifier,SEUIL2.x,SEUIL2.y,OVERFLY,20])
-fptdpG.append([ESUME.waypoint_identifier,ESUME.x,ESUME.y,FLYBY,1000])
-fptdpG.append([WPT1.waypoint_identifier,WPT1.x,WPT1.y,FLYBY,UNDEFINED_Z])
-fptdpG.append([WPT2.waypoint_identifier,WPT2.x,WPT2.y,FLYBY,UNDEFINED_Z])
-fptdpG.append([WPT3.waypoint_identifier,WPT3.x,WPT3.y,FLYBY,UNDEFINED_Z])
-fptdpG.append([SEUIL1.waypoint_identifier,SEUIL1.x,SEUIL1.y,OVERFLY,10])
-fptdpG.append([SEUIL2.waypoint_identifier,SEUIL2.x,SEUIL2.y,OVERFLY,0])
+old_tdp =[] ##Flight Plan Tour De Piste Gauche
+old_tdp.append([SEUIL1.waypoint_identifier,SEUIL1.x,SEUIL1.y,OVERFLY,0])
+old_tdp.append([SEUIL2.waypoint_identifier,SEUIL2.x,SEUIL2.y,OVERFLY,20])
+old_tdp.append([ESUME.waypoint_identifier,ESUME.x,ESUME.y,FLYBY,1000])
+old_tdp.append([WPT1.waypoint_identifier,WPT1.x,WPT1.y,FLYBY,UNDEFINED_Z])
+old_tdp.append([WPT2.waypoint_identifier,WPT2.x,WPT2.y,FLYBY,UNDEFINED_Z])
+old_tdp.append([WPT3.waypoint_identifier,WPT3.x,WPT3.y,FLYBY,UNDEFINED_Z])
+old_tdp.append([SEUIL1.waypoint_identifier,SEUIL1.x,SEUIL1.y,OVERFLY,10])
+old_tdp.append([SEUIL2.waypoint_identifier,SEUIL2.x,SEUIL2.y,OVERFLY,0])
 
 fp_test_dirto = []
 fp_test_dirto.append([SEUIL1.waypoint_identifier, SEUIL1.x, SEUIL1.y, OVERFLY, 0])
@@ -100,23 +100,22 @@ fp_test.append([WPTA.waypoint_identifier,WPTA.x,WPTA.y,FLYBY,UNDEFINED_Z])
 fp_test.append([WPTB.waypoint_identifier,WPTB.x,WPTB.y,FLYBY,UNDEFINED_Z])
 fp_test.append([WPTC.waypoint_identifier,WPTC.x,WPTC.y,FLYBY,UNDEFINED_Z])
 
-new_fp = []
-new_fp.append([SEUIL1.waypoint_identifier,SEUIL1.x,SEUIL1.y,OVERFLY,0])
-new_fp.append([SEUIL2.waypoint_identifier,SEUIL2.x,SEUIL2.y,OVERFLY,20])
-new_fp.append([NORMAN.waypoint_identifier,NORMAN.x,NORMAN.y,FLYBY,1000])
-new_fp.append([ALEX.waypoint_identifier,ALEX.x,ALEX.y,FLYBY,UNDEFINED_Z])
-new_fp.append([MARTIN.waypoint_identifier,MARTIN.x,MARTIN.y,FLYBY,UNDEFINED_Z])
-new_fp.append([SULLY.waypoint_identifier,SULLY.x,SULLY.y,FLYBY,UNDEFINED_Z])
-new_fp.append([WPT3.waypoint_identifier,WPT3.x,WPT3.y,OVERFLY,UNDEFINED_Z])
-new_fp.append([SEUIL1.waypoint_identifier,SEUIL1.x,SEUIL1.y,OVERFLY,500])
-new_fp.append([SEUIL2.waypoint_identifier,SEUIL2.x,SEUIL2.y,OVERFLY,0])
+tourdepisteMG = []
+tourdepisteMG.append([SEUIL1.waypoint_identifier,SEUIL1.x,SEUIL1.y,OVERFLY,0])
+tourdepisteMG.append([SEUIL2.waypoint_identifier,SEUIL2.x,SEUIL2.y,OVERFLY,20])
+tourdepisteMG.append([NORMAN.waypoint_identifier,NORMAN.x,NORMAN.y,FLYBY,1500])
+tourdepisteMG.append([ALEX.waypoint_identifier,ALEX.x,ALEX.y,FLYBY,UNDEFINED_Z])
+tourdepisteMG.append([MARTIN.waypoint_identifier,MARTIN.x,MARTIN.y,FLYBY,UNDEFINED_Z])
+tourdepisteMG.append([SULLY.waypoint_identifier,SULLY.x,SULLY.y,FLYBY,1000])
+tourdepisteMG.append([WPT3.waypoint_identifier,WPT3.x,WPT3.y,OVERFLY,500])
+tourdepisteMG.append([SEUIL1.waypoint_identifier,SEUIL1.x,SEUIL1.y,OVERFLY,50])
+tourdepisteMG.append([SEUIL2.waypoint_identifier,SEUIL2.x,SEUIL2.y,OVERFLY,0])
 
 fp_test_alt = []
 fp_test_alt.append([SEUIL1.waypoint_identifier,SEUIL1.x,SEUIL1.y,OVERFLY,0])
 fp_test_alt.append([ESUME.waypoint_identifier,ESUME.x,ESUME.y,OVERFLY,500])
 fp_test_alt.append([WPT1.waypoint_identifier,WPT1.x,WPT1.y,OVERFLY,1524])
 fp_test_alt.append([WPT2.waypoint_identifier,WPT2.x,WPT2.y,OVERFLY,UNDEFINED_Z])
-
 
 bis = []
 bis.append([SEUIL1.waypoint_identifier,SEUIL1.x,SEUIL1.y,OVERFLY,0])
@@ -127,6 +126,7 @@ bis.append([MARTIN.waypoint_identifier,MARTIN.x,MARTIN.y,FLYBY,UNDEFINED_Z])
 bis.append([SULLY.waypoint_identifier,SULLY.x,SULLY.y,FLYBY,UNDEFINED_Z])
 bis.append([SEUIL1.waypoint_identifier,SEUIL1.x,SEUIL1.y,OVERFLY,10])
 bis.append([SEUIL2.waypoint_identifier,SEUIL2.x,SEUIL2.y,OVERFLY,0])
+
 #### DEFINITION DES PARAMETRES COST INDEX ET VEND
 CI = 0
 V_vent = 0 # en knots
@@ -137,6 +137,5 @@ Gamma_Init = 0 ## en degrés
 trans_alt = 5000 ## en ft
 VMAXFL100 = 250 ## en knots
 wind = [c.knots_to_ms(V_vent), c.deg_to_rad(Dir_Vent)+math.pi]
-flight_plan = new_fp
+flight_plan = tourdepisteMG
 
-#flight_plan = fp_test_dirto

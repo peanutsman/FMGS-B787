@@ -1,0 +1,14 @@
+Pour utiliser le FMGS : 
+Les librairies nécessaires sont les suivants : Scipy.constants, math, PyQt5, Ivy, sqlite3.
+
+Etapes:
+0/ Si la nav_db.db n'existe pas: executer le fichier nav_db.py (fichier csv nécessaire)
+	Pour modifier la db : supprimer nav_db.db, modifier le csv, executer nav_db.py
+
+1/ Fichier flight_plan.py (à partir de Ligne 130) :
+	Paramétrer le vol (plan de vol, cost index, transition altitude, vitesse initiale, vitesse et direction du vent)
+
+2/ Fichier main.py (Ligne 331+) :
+	Paramétrer le bus Ivy en fonction de la connection utilisée et du port des autres modules (Sim, PA lat/long, Yoke)
+
+3/ Executer le fichier main.py (le simulateur de vol doit être activé avec la bonne adresse IP)

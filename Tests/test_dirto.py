@@ -55,7 +55,7 @@ def init_dirto():
 #Bus IVY
 app_name = "Test_DIRTO"
 #bus_Ivy = "127.255.255.255:2010"
-bus_Ivy = "224.255.255.255:2010"
+bus_Ivy = "127.255.255.255:2010"
 
 def null(*args):
     pass
