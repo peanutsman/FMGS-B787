@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 SUCCESS = 1
 NOMBRE_DE_CAS = 0
-FLIGHTPLAN_PATH = "local_flightplan.py"
+FLIGHTPLAN_PATH = "local_flightplan.txt"
 time = []
 counter = 0
 ZcM_list = []
