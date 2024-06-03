@@ -74,7 +74,7 @@ class Point2D:
 class WayPoint(Point2D):
     def __init__(self, x, y, z, name, bool_fly):
         super().__init__(x, y)
-        self.z = float(z)
+        self.z = z
         self.name = name
         bool_fly = bool_fly
 
